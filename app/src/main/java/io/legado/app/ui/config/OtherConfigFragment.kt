@@ -98,11 +98,6 @@ class OtherConfigFragment : BasePreferenceFragment(),
                 setProcessTextEnable(it.getBoolean(key, true))
             }
             PreferKey.showDiscovery, PreferKey.showRss -> postEvent(EventBus.NOTIFY_MAIN, true)
-            PreferKey.highContrastText -> {
-                // 高对比文字在外层 Context 包装层生效, 需重建界面
-                AppContextWrapper.wrap(appCtx)
-                postEvent(EventBus.RECREATE, "")
-            }
             PreferKey.language -> listView.postDelayed({
                 AppContextWrapper.wrap(appCtx)
                 val intent = Intent(appCtx, MainActivity::class.java)

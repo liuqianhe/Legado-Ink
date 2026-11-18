@@ -860,8 +860,6 @@
     <string name="login_header">登录头</string>
     <string name="font_scale">字体大小</string>
     <string name="font_scale_summary">当前字体大小:%d</string>
-    <string name="high_contrast_text">High contrast text</string>
-    <string name="high_contrast_text_summary">Use pure black text for higher contrast</string>
     <string name="pull_cloud_progress_ing">Pulling cloud progress…</string>
     <string name="pull_cloud_progress_no_data">No cloud progress for this book</string>
     <string name="pull_cloud_progress_success">Cloud progress synced</string>

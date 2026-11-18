@@ -58,13 +58,6 @@
             android:summary="@string/font_scale_summary"
             app:iconSpaceReserved="false" />
 
-        <io.legado.app.ui.widget.prefs.SwitchPreference
-            android:key="highContrastText"
-            android:defaultValue="false"
-            android:title="@string/high_contrast_text"
-            android:summary="@string/high_contrast_text_summary"
-            app:iconSpaceReserved="false" />
-
         <io.legado.app.ui.widget.prefs.Preference
             android:key="userAgent"
             android:title="UserAgent" />
