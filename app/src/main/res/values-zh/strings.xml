@@ -858,6 +858,12 @@
     <string name="show_login_header">查看登录头</string>
     <string name="login_header">登录头</string>
     <string name="font_scale">字体大小</string>
-    <string name="font_scale_summary">当前字体大小:%.1f</string>
+    <string name="font_scale_summary">当前字体大小:%d</string>
+    <string name="high_contrast_text">高对比纯黑文字</string>
+    <string name="high_contrast_text_summary">开启后界面文字使用纯黑, 提高对比度</string>
+    <string name="pull_cloud_progress_ing">正在拉取云端进度…</string>
+    <string name="pull_cloud_progress_no_data">云端没有本书的进度记录</string>
+    <string name="pull_cloud_progress_success">已同步云端进度</string>
+    <string name="pull_cloud_progress_fail">拉取云端进度失败</string>
 
 </resources>

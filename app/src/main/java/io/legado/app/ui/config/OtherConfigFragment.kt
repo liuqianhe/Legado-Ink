@@ -98,6 +98,11 @@ class OtherConfigFragment : BasePreferenceFragment(),
                 setProcessTextEnable(it.getBoolean(key, true))
             }
             PreferKey.showDiscovery, PreferKey.showRss -> postEvent(EventBus.NOTIFY_MAIN, true)
+            PreferKey.highContrastText -> {
+                // 高对比文字在外层 Context 包装层生效, 需重建界面
+                AppContextWrapper.wrap(appCtx)
+                postEvent(EventBus.RECREATE, "")
+            }
             PreferKey.language -> listView.postDelayed({
                 AppContextWrapper.wrap(appCtx)
                 val intent = Intent(appCtx, MainActivity::class.java)
@@ -118,7 +123,10 @@ class OtherConfigFragment : BasePreferenceFragment(),
                 getString(R.string.pre_download_s, value)
             PreferKey.threadCount -> preference.summary = getString(R.string.threads_num, value)
             PreferKey.fontScale -> preference.summary =
-                getString(R.string.font_scale_summary, AppContextWrapper.getFontScale(requireContext()))
+                getString(
+                    R.string.font_scale_summary,
+                    (AppContextWrapper.getFontScale(requireContext()) * 10).roundToInt()
+                )
             else -> if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(value)
                 // Set the summary to reflect the new value.

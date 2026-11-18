@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.LocaleList
 import io.legado.app.constant.PreferKey
+import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.getPrefInt
 import io.legado.app.utils.getPrefString
 import java.util.*
@@ -15,7 +16,7 @@ object AppContextWrapper {
 
     fun wrap(context: Context): Context {
         val fontScale = getFontScale(context)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val wrapped = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val resources: Resources = context.resources
             val configuration: Configuration = resources.configuration
             val targetLocale = getSetLocale(context)
@@ -33,6 +34,12 @@ object AppContextWrapper {
             @Suppress("DEPRECATION")
             resources.updateConfiguration(configuration, resources.displayMetrics)
             context
+        }
+        // 高对比纯黑文字: 外层再包一层 Resources, 把发灰的文本色替换为纯黑
+        return if (context.getPrefBoolean(PreferKey.highContrastText)) {
+            HighContrastContext(wrapped)
+        } else {
+            wrapped
         }
     }
 

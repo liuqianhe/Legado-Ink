@@ -146,20 +146,33 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
         book: Book,
         alertSync: ((progress: BookProgress) -> Unit)? = null
     ) {
-        if (AppConfig.syncBookProgress)
-            execute {
-                AppWebDav.getBookProgress(book)
-            }.onSuccess {
-                it?.let { progress ->
-                    if (progress.durChapterIndex < book.durChapterIndex ||
-                        (progress.durChapterIndex == book.durChapterIndex && progress.durChapterPos < book.durChapterPos)
-                    ) {
-                        alertSync?.invoke(progress)
-                    } else {
-                        ReadBook.setProgress(progress)
-                    }
-                }
+        if (!AppConfig.syncBookProgress) return
+        // 手动触发(菜单"获取云端进度")时给出可见反馈; 自动同步保持静默
+        val manual = alertSync != null
+        if (manual) context.toastOnUi(R.string.pull_cloud_progress_ing)
+        execute {
+            AppWebDav.getBookProgress(book)
+        }.onSuccess { progress ->
+            if (progress == null) {
+                if (manual) context.toastOnUi(R.string.pull_cloud_progress_no_data)
+                return@onSuccess
             }
+            if (progress.durChapterIndex < book.durChapterIndex ||
+                (progress.durChapterIndex == book.durChapterIndex && progress.durChapterPos < book.durChapterPos)
+            ) {
+                // 本地进度领先云端, 交由调用方弹窗确认
+                alertSync?.invoke(progress)
+            } else {
+                ReadBook.setProgress(progress)
+                if (manual) context.toastOnUi(R.string.pull_cloud_progress_success)
+            }
+        }.onError {
+            if (manual) {
+                context.toastOnUi(
+                    "${context.getString(R.string.pull_cloud_progress_fail)}\n${it.localizedMessage ?: ""}"
+                )
+            }
+        }
     }
 
     fun changeTo(source: BookSource, book: Book) {

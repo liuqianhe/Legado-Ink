@@ -44,9 +44,12 @@ object SSLHelper {
 
     val unsafeSSLSocketFactory: SSLSocketFactory by lazy {
         try {
-            val sslContext = SSLContext.getInstance("SSL")
+            // Android 4.4 上 "SSL" 上下文只启用 TLSv1.0,
+            // 而很多现代服务器(如 TLS1.2 only 的 WebDAV)会握手失败。
+            // 用 "TLS" 上下文并在低版本上强制启用 TLSv1.1/1.2。
+            val sslContext = SSLContext.getInstance("TLS")
             sslContext.init(null, arrayOf(unsafeTrustManager), SecureRandom())
-            sslContext.socketFactory
+            Tls12SocketFactory(sslContext.socketFactory)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -180,5 +183,45 @@ object SSLHelper {
             }
         }
         throw NullPointerException()
+    }
+}
+
+/**
+ * Android 4.4(API 16~20) 默认只启用 TLSv1.0, 导致连接仅支持 TLS1.2 的服务器(如新版 WebDAV/HTTPS 站点)
+ * 握手失败。此代理在 createSocket 后主动把 TLSv1.1/TLSv1.2 加入启用列表。
+ * 参考 OkHttp 官方 Tls12SocketFactory 实现。
+ */
+private class Tls12SocketFactory(private val base: SSLSocketFactory) : SSLSocketFactory() {
+
+    override fun getDefaultCipherSuites(): Array<String> = base.defaultCipherSuites
+    override fun getSupportedCipherSuites(): Array<String> = base.supportedCipherSuites
+
+    override fun createSocket(s: java.net.Socket, host: String, port: Int, autoClose: Boolean): java.net.Socket =
+        patch(base.createSocket(s, host, port, autoClose))
+
+    override fun createSocket(host: String, port: Int): java.net.Socket =
+        patch(base.createSocket(host, port))
+
+    override fun createSocket(host: String, port: Int, localHost: java.net.InetAddress, localPort: Int): java.net.Socket =
+        patch(base.createSocket(host, port, localHost, localPort))
+
+    override fun createSocket(host: java.net.InetAddress, port: Int): java.net.Socket =
+        patch(base.createSocket(host, port))
+
+    override fun createSocket(
+        host: java.net.InetAddress,
+        port: Int,
+        localAddress: java.net.InetAddress,
+        localPort: Int
+    ): java.net.Socket = patch(base.createSocket(host, port, localAddress, localPort))
+
+    private fun patch(socket: java.net.Socket): java.net.Socket {
+        if (socket is SSLSocket) {
+            val enabled = socket.enabledProtocols
+            val wanted = arrayOf("TLSv1.2", "TLSv1.1", "TLSv1")
+            socket.enabledProtocols = wanted.filter { it in socket.supportedProtocols }.toTypedArray()
+                .let { if (it.isEmpty()) enabled else it }
+        }
+        return socket
     }
 }
