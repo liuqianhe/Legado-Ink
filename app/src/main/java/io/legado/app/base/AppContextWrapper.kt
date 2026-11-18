@@ -14,10 +14,7 @@ import java.util.*
 object AppContextWrapper {
 
     fun wrap(context: Context): Context {
-        var fontScale = context.getPrefInt(PreferKey.fontScale) / 10f
-        if (fontScale !in 0.8f..1.6f) {
-            fontScale = 0f
-        }
+        val fontScale = getFontScale(context)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val resources: Resources = context.resources
             val configuration: Configuration = resources.configuration
@@ -37,6 +34,20 @@ object AppContextWrapper {
             resources.updateConfiguration(configuration, resources.displayMetrics)
             context
         }
+    }
+
+    /**
+     * 界面字体缩放比例。
+     * 用户设置值为整数（如 10 表示 1.0 倍），未设置(0)或超出范围时回退到系统字体缩放。
+     * 注意: 不可回退到 0f —— 否则所有 sp 文字(含 Toast)高度为 0, 界面看不到文字。
+     */
+    fun getFontScale(context: Context): Float {
+        var fontScale = context.getPrefInt(PreferKey.fontScale) / 10f
+        if (fontScale !in 0.8f..1.6f) {
+            fontScale = Resources.getSystem().configuration.fontScale
+            if (fontScale <= 0f) fontScale = 1f
+        }
+        return fontScale
     }
 
     /**

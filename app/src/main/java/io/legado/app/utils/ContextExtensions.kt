@@ -12,11 +12,15 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.provider.Settings
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -78,28 +82,51 @@ inline fun <reified T : BroadcastReceiver> Context.broadcastPendingIntent(
     return getBroadcast(this, 0, intent, FLAG_CANCEL_CURRENT)
 }
 
-fun Context.toastOnUi(message: Int) {
-    runOnUI {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+/**
+ * 构造白底黑字 toast 视图, 与墨水屏白色界面风格一致(系统默认为黑底白字, 在白色 App 里很突兀)。
+ * 保留系统原有显示时长, 不改变 LONG/SHORT 行为。
+ */
+private fun Context.inkToastView(message: CharSequence): View {
+    val density = resources.displayMetrics.density
+    val padding = (12 * density).toInt()
+    return TextView(this).apply {
+        text = message
+        setTextColor(Color.BLACK)
+        textSize = 15f
+        setPadding(padding, padding, padding, padding)
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.WHITE)
+            setStroke((1 * density).toInt(), Color.parseColor("#9E9E9E"))
+            cornerRadius = 6 * density
+        }
     }
+}
+
+private fun Context.showInkToast(message: CharSequence, duration: Int) {
+    runOnUI {
+        Toast(this).apply {
+            view = inkToastView(message)
+            setDuration(duration)
+            show()
+        }
+    }
+}
+
+fun Context.toastOnUi(message: Int) {
+    showInkToast(getString(message), Toast.LENGTH_SHORT)
 }
 
 fun Context.toastOnUi(message: CharSequence?) {
-    runOnUI {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
+    showInkToast(message ?: return, Toast.LENGTH_SHORT)
 }
 
 fun Context.longToastOnUi(message: Int) {
-    runOnUI {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
+    showInkToast(getString(message), Toast.LENGTH_LONG)
 }
 
 fun Context.longToastOnUi(message: CharSequence?) {
-    runOnUI {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
+    showInkToast(message ?: return, Toast.LENGTH_LONG)
 }
 
 val Context.defaultSharedPreferences: SharedPreferences

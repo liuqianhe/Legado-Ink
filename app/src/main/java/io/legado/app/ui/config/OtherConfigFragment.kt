@@ -24,6 +24,7 @@ import io.legado.app.receiver.SharedReceiverActivity
 import io.legado.app.ui.main.MainActivity
 import io.legado.app.ui.widget.number.NumberPickerDialog
 import io.legado.app.utils.*
+import kotlin.math.roundToInt
 import splitties.init.appCtx
 
 
@@ -42,6 +43,7 @@ class OtherConfigFragment : BasePreferenceFragment(),
         upPreferenceSummary(PreferKey.userAgent, AppConfig.userAgent)
         upPreferenceSummary(PreferKey.preDownloadNum, AppConfig.preDownloadNum.toString())
         upPreferenceSummary(PreferKey.threadCount, AppConfig.threadCount.toString())
+        upPreferenceSummary(PreferKey.fontScale, null)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,6 +60,7 @@ class OtherConfigFragment : BasePreferenceFragment(),
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         when (preference?.key) {
+            PreferKey.fontScale -> showFontScaleDialog()
             PreferKey.userAgent -> showUserAgentDialog()
             PreferKey.preDownloadNum -> NumberPickerDialog(requireContext())
                 .setTitle(getString(R.string.pre_download))
@@ -114,6 +117,8 @@ class OtherConfigFragment : BasePreferenceFragment(),
             PreferKey.preDownloadNum -> preference.summary =
                 getString(R.string.pre_download_s, value)
             PreferKey.threadCount -> preference.summary = getString(R.string.threads_num, value)
+            PreferKey.fontScale -> preference.summary =
+                getString(R.string.font_scale_summary, AppContextWrapper.getFontScale(requireContext()))
             else -> if (preference is ListPreference) {
                 val index = preference.findIndexOfValue(value)
                 // Set the summary to reflect the new value.
@@ -122,6 +127,31 @@ class OtherConfigFragment : BasePreferenceFragment(),
                 preference.summary = value
             }
         }
+    }
+
+    /**
+     * 界面字体大小设置。8=0.8倍 ... 16=1.6倍, 默认(0)跟随系统。
+     * 修改后通过 RECREATE 事件重建当前界面, 立即生效。
+     */
+    private fun showFontScaleDialog() {
+        NumberPickerDialog(requireContext())
+            .setTitle(getString(R.string.font_scale))
+            .setMaxValue(16)
+            .setMinValue(8)
+            .setValue(
+                (AppContextWrapper.getFontScale(requireContext()) * 10)
+                    .roundToInt().coerceIn(8, 16)
+            )
+            .setCustomButton(R.string.btn_default_s) {
+                putPrefInt(PreferKey.fontScale, 0)
+                upPreferenceSummary(PreferKey.fontScale, null)
+                postEvent(EventBus.RECREATE, "")
+            }
+            .show {
+                putPrefInt(PreferKey.fontScale, it)
+                upPreferenceSummary(PreferKey.fontScale, null)
+                postEvent(EventBus.RECREATE, "")
+            }
     }
 
     @SuppressLint("InflateParams")
