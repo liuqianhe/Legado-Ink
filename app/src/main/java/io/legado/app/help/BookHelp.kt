@@ -203,13 +203,15 @@ object BookHelp {
             return LocalBook.getContext(book, bookChapter)
         } else if (book.isEpub() && !hasContent(book, bookChapter)) {
             val string = LocalBook.getContext(book, bookChapter)
-            string?.let {
+            // 空内容不落盘：hasContent 只判断文件是否存在，若把空字符串写成 0 字节缓存，
+            // 以后会一直命中这个空缓存、再也不会重新解析（多看精排某章解析异常时会这样）。
+            if (!string.isNullOrBlank()) {
                 FileUtils.createFileIfNotExist(
                     downloadDir,
                     cacheFolderName,
                     book.getFolderName(),
                     bookChapter.getFileName(),
-                ).writeText(it)
+                ).writeText(string)
             }
             return string
         } else {
@@ -218,8 +220,17 @@ object BookHelp {
                 book.getFolderName(),
                 bookChapter.getFileName()
             )
+            // 0 字节/空白缓存视为无效（旧版本解析失败时写过空缓存），重新从 epub 解析。
             if (file.exists()) {
-                return file.readText()
+                val cached = file.readText()
+                if (cached.isNotBlank()) return cached
+                if (book.isEpub()) {
+                    val fresh = LocalBook.getContext(book, bookChapter)
+                    if (!fresh.isNullOrBlank()) {
+                        file.writeText(fresh)
+                        return fresh
+                    }
+                }
             }
         }
         return null

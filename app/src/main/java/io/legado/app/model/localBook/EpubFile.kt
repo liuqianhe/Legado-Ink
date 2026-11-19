@@ -134,6 +134,11 @@ class EpubFile(var book: Book) {
     private fun getChildChapter(chapter: BookChapter, href: String): String? {
         val epub = epubBook ?: return null
         try {
+            // 阅读流程不经过 getChapterList()，chapterContentRange 可能还没建立（进程重启、
+            // 读过别的书导致 eFile 单例重建等）。此时若直接 fallback 只读 href 单个资源，
+            // 多看精排书（标题页与正文页分离）就只剩标题。这里按需补建区间映射。
+            if (chapterContentRange.isEmpty()) buildChapterContentRangeFromToc()
+
             // 取本章对应的 spine 资源列表：默认只有 href 本身；
             // 若建立了章节区间（多看精排等一章多文件），则拼接标题页到正文页的全部资源
             val resources = mutableListOf<me.ag2s.epublib.domain.Resource>()
@@ -282,13 +287,27 @@ class EpubFile(var book: Book) {
      * 这样夹在标题页与下一章之间的正文页（如 chpaterN_0001.xhtml）会被并入本章。
      */
     private fun buildChapterContentRange(chapterList: List<BookChapter>) {
+        val hrefs = chapterList.map { it.url }
+        buildRangeFromHrefs(hrefs)
+    }
+
+    /**
+     * 阅读时按需补建区间映射：直接从 epub 的 TOC 资源取 href，不依赖 chapterList
+     * （阅读流程只读数据库的目录，不会调 getChapterList）。
+     */
+    private fun buildChapterContentRangeFromToc() {
+        val hrefs = epubBook?.tableOfContents?.allUniqueResources?.map { it.href } ?: return
+        buildRangeFromHrefs(hrefs)
+    }
+
+    private fun buildRangeFromHrefs(hrefs: List<String>) {
         val epub = epubBook ?: return
         val contents = epub.contents
-        if (contents.isEmpty() || chapterList.isEmpty()) return
+        if (contents.isEmpty() || hrefs.isEmpty()) return
         val map = HashMap<String, IntArray>()
         // 目录章节 href（去 fragment）→ 在 contents 中首次出现的索引
-        val chapterPositions = chapterList.map { chapter ->
-            val h = chapter.url.substringBefore("#")
+        val chapterPositions = hrefs.map { h0 ->
+            val h = h0.substringBefore("#")
             h to contents.indexOfFirst { (it.href ?: "").substringBefore("#") == h }
         }
         chapterPositions.forEachIndexed { i, (href, startIdx) ->
