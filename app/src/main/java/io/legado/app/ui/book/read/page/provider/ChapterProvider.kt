@@ -223,20 +223,24 @@ object ChapterProvider {
             page.textLines.forEach { line ->
                 if (line.isTitle || line.isImage) return@forEach
                 val chars = line.textChars
+                // 段首排版会在 textChars 开头插入 paragraphIndent（默认两个全角空格）作为缩进，
+                // 这些是排版占位而非正文，不应被下划线覆盖。计算行首缩进字符数并在打标时跳过。
+                val indentCount = leadingIndentCount(chars)
                 if (globalOn) {
-                    // 全局：整行（每个非图片字符）都画同一线型
-                    chars.forEach { tc ->
-                        if (!tc.isImage) tc.underlineKind = cfg.globalKind
+                    // 全局：整行（每个非图片字符）都画同一线型，但跳过行首缩进空白
+                    chars.forEachIndexed { ci, tc ->
+                        if (!tc.isImage && ci >= indentCount) tc.underlineKind = cfg.globalKind
                     }
                     return@forEach
                 }
                 if (!bodyOn && !dialogueOn) return@forEach
 
-                // 用 charData 拼行文本，并记录 sb 索引 -> chars 索引，保证正则命中位置精确对齐
+                // 用 charData 拼行文本，并记录 sb 索引 -> chars 索引，保证正则命中位置精确对齐。
+                // 同样跳过行首缩进空白，避免正文下划线从缩进处开始画。
                 val sb = StringBuilder()
                 val indexMap = mutableListOf<Int>()
                 chars.forEachIndexed { ci, tc ->
-                    if (!tc.isImage) {
+                    if (!tc.isImage && ci >= indentCount) {
                         indexMap.add(ci)
                         sb.append(tc.charData)
                     }
@@ -260,6 +264,23 @@ object ChapterProvider {
                 }
             }
         }
+    }
+
+    /**
+     * 统计行首段落缩进字符数。段首排版会在 textChars 开头插入 paragraphIndent
+     * （默认两个全角空格 U+3000），它们是排版占位而非正文，下划线不应覆盖。
+     * 只统计与 paragraphIndent 相同的连续字符，最多 paragraphIndent.length 个。
+     */
+    private fun leadingIndentCount(chars: List<io.legado.app.ui.book.read.page.entities.TextChar>): Int {
+        val indent = ReadBookConfig.paragraphIndent
+        if (indent.isEmpty()) return 0
+        var count = 0
+        for (tc in chars) {
+            if (count >= indent.length) break
+            if (tc.isImage || tc.charData.length != 1 || tc.charData[0] != indent[count]) break
+            count++
+        }
+        return count
     }
 
     private fun setTypeImage(

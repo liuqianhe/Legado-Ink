@@ -284,7 +284,6 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 对话范围用预制正则识别（见 DialogueRange），设备无需输入正则。
      */
     private fun showUnderlineConfig() {
-        val cfg = UnderlineStore.getConfig()
         val kindNames = listOf(
             getString(R.string.ink_underline_solid),
             getString(R.string.ink_underline_dashed),
@@ -298,7 +297,10 @@ class ReadBookActivity : BaseReadBookActivity(),
             selector(title, kindNames) { _, idx -> onPicked(kinds[idx]) }
         }
         fun apply(block: UnderlineStore.Config.() -> Unit) {
-            val c = cfg.copy().apply(block)
+            // 每次选择都从全关闭的新配置开始，避免上一次的正文/对话线型残留。
+            // 旧实现用 cfg.copy() 累加：从"正文+对话"切到"对话"时 bodyKind 残留，
+            // 导致正文线仍在、对话设置看似不生效，必须先全关再选才行。
+            val c = UnderlineStore.Config().apply(block)
             UnderlineStore.saveConfig(c)
             ContentTextView.clearPreparedPage()
             ReadBook.loadContent(resetPageOffset = false)

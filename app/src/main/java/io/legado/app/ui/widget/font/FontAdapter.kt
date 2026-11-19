@@ -29,6 +29,16 @@ class FontAdapter(context: Context, curFilePath: String, val callBack: CallBack)
         payloads: MutableList<Any>
     ) {
         binding.run {
+            if (item.isDir) {
+                // 目录项：显示文件夹图标，用系统字体显示目录名，不加载字体、不显示勾选
+                ivFolder.visible()
+                tvFont.typeface = Typeface.DEFAULT
+                tvFont.text = item.name
+                ivChecked.invisible()
+                return@run
+            }
+            // 字体项：用字体本身预览
+            ivFolder.gone()
             kotlin.runCatching {
                 val typeface: Typeface? = if (item.isContentScheme) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -49,7 +59,6 @@ class FontAdapter(context: Context, curFilePath: String, val callBack: CallBack)
                 context.toastOnUi("Read ${item.name} Error: ${it.localizedMessage}")
             }
             tvFont.text = item.name
-            root.setOnClickListener { callBack.onClick(item) }
             if (item.name == curName) {
                 ivChecked.visible()
             } else {

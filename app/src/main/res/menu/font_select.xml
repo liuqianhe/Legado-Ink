@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_parent"
+        android:icon="@drawable/ic_arrow_back"
+        android:title="@string/font_parent_dir"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/menu_default"
         android:title="@string/default_font"
         app:showAsAction="ifRoom" />

@@ -295,6 +295,7 @@
     <string name="fonts_folder">Please put the font files in the Fonts folder of the storage root directory and reselect</string>
     <string name="default_font">Default font</string>
     <string name="select_font">Select fonts</string>
+    <string name="font_parent_dir">Back to parent folder</string>
     <string name="text_size">Text size</string>
     <string name="line_size">Line spacing</string>
     <string name="paragraph_size">Paragraph spacing</string>
