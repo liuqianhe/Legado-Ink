@@ -55,6 +55,13 @@
     <color name="status_bar_bag">#19000000</color>
     <color name="navigation_bar_bag">#f4f4f4</color>
 
+    <!-- 九宫格点击区域：墨水屏白底黑字黑框 -->
+    <color name="eink_cell_bg">#ffffffff</color>
+    <color name="eink_cell_stroke">#ff000000</color>
+    <color name="eink_cell_text">#ff000000</color>
+    <color name="eink_scrim">#ccffffff</color>
+    <color name="eink_grid_line">#ff000000</color>
+
     <!--base-color-->
     <color name="translucent">#99343434</color>
     <color name="black">#000000</color>

@@ -1,6 +1,7 @@
 package io.legado.app.help
 
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.Keep
@@ -12,22 +13,30 @@ import timber.log.Timber
 import java.io.File
 
 /**
- * 阅读界面配置
+ * 阅读界面配置（墨水屏版）。
+ * 支持多套布局 + 自定义背景；文字恒为纯黑以保证墨水屏对比度。
  */
 @Keep
 object ReadBookConfig {
     const val configFileName = "readConfig.json"
     val configFilePath = FileUtils.getPath(appCtx.filesDir, configFileName)
     val configList: ArrayList<Config> = arrayListOf()
+
+    /** 当前布局索引（多套布局） */
+    var styleSelect: Int = appCtx.getPrefInt("ink_style_select", 0)
+        private set
+
     var durConfig
-        get() = selectedConfig()
+        get() = getConfig(styleSelect)
         set(value) {
-            configList[0] = value.applyInkDefaults()
+            if (configList.isEmpty()) configList.add(value)
+            else configList[styleSelect] = value
             upBg()
         }
 
     var bg: Drawable? = null
     var bgMeanColor: Int = 0
+    // 墨水屏：文字恒纯黑，不随背景变化
     val textColor: Int get() = Color.BLACK
 
     init {
@@ -35,11 +44,18 @@ object ReadBookConfig {
     }
 
     @Synchronized
-    private fun selectedConfig(): Config {
-        if (configList.isEmpty()) {
-            resetAll()
-        }
-        return configList[0]
+    fun getConfig(index: Int): Config {
+        if (configList.isEmpty()) resetAll()
+        return configList.getOrNull(index) ?: configList[0]
+    }
+
+    /** 切换布局（互斥于其它布局，立即生效） */
+    fun selectStyle(index: Int) {
+        val safe = index.coerceIn(0, configList.lastIndex)
+        styleSelect = safe
+        appCtx.putPrefInt("ink_style_select", safe)
+        upBg()
+        save()
     }
 
     fun initConfigs() {
@@ -47,20 +63,49 @@ object ReadBookConfig {
         var configs: List<Config>? = null
         if (configFile.exists()) {
             try {
-                val json = configFile.readText()
-                configs = GSON.fromJsonArray(json)
+                configs = GSON.fromJsonArray(configFile.readText())
             } catch (e: Exception) {
                 Timber.e(e)
             }
         }
-        val config = configs?.firstOrNull() ?: DefaultData.readConfigs.firstOrNull() ?: Config()
-        configList.clear()
-        configList.add(config.applyInkDefaults())
+        (configs ?: DefaultData.readConfigs).let {
+            configList.clear()
+            if (it.isEmpty()) {
+                configList.add(Config().applyInkDefaults())
+            } else {
+                it.forEach { c -> configList.add(c.applyInkDefaults()) }
+            }
+        }
+        if (styleSelect > configList.lastIndex) selectStyle(0)
+    }
+
+    /** 新建一套布局（复制当前布局） */
+    fun addStyle(): Int {
+        val copy = GSON.fromJsonObject<Config>(GSON.toJson(durConfig))?.apply {
+            name = "布局${configList.size + 1}"
+        } ?: Config().applyInkDefaults()
+        configList.add(copy)
+        selectStyle(configList.lastIndex)
+        return styleSelect
+    }
+
+    /** 删除指定布局，至少保留一套 */
+    fun deleteStyle(index: Int): Boolean {
+        if (configList.size <= 1) return false
+        configList.removeAt(index.coerceIn(0, configList.lastIndex))
+        selectStyle(styleSelect.coerceIn(0, configList.lastIndex))
+        return true
     }
 
     fun upBg() {
-        bg = ColorDrawable(Color.WHITE)
-        bgMeanColor = Color.WHITE
+        val dm = appCtx.resources.displayMetrics
+        bg = durConfig.curBgDrawable(dm.widthPixels, dm.heightPixels).apply {
+            bgMeanColor = when (this) {
+                is BitmapDrawable -> bitmap.getMeanColor()
+                is ColorDrawable -> color
+                else -> Color.WHITE
+            }
+        }
     }
 
     fun save() {
@@ -239,9 +284,29 @@ object ReadBookConfig {
             config.showFooterLine = value
         }
 
+    // ===== 页眉/页脚字号（对齐海信 io.legado.app.release 的 headerFontSize/footerFontSize）=====
+    // 限制范围，避免字号过大导致页眉页脚遮住正文
+    const val minTipFontSize = 6
+    const val maxTipFontSize = 24
+
+    var headerFontSize: Int
+        get() = config.headerFontSize.coerceIn(minTipFontSize, maxTipFontSize)
+        set(value) {
+            config.headerFontSize = value.coerceIn(minTipFontSize, maxTipFontSize)
+        }
+
+    var footerFontSize: Int
+        get() = config.footerFontSize.coerceIn(minTipFontSize, maxTipFontSize)
+        set(value) {
+            config.footerFontSize = value.coerceIn(minTipFontSize, maxTipFontSize)
+        }
+
     @Keep
     class Config(
-        var name: String = "",
+        var name: String = "墨水屏",
+        // 背景：bgType 0=纯色 1=assets内置图片 2=外部图片路径
+        var bgStr: String = "#FFFFFF",
+        var bgType: Int = 0,
         var textFont: String = "",//字体
         var textBold: Int = 0,//是否粗体字 0:正常, 1:粗体, 2:细体
         var textSize: Int = 20,//文字大小
@@ -266,7 +331,9 @@ object ReadBookConfig {
         var footerPaddingRight: Int = 16,
         var footerPaddingTop: Int = 6,
         var showHeaderLine: Boolean = false,
-        var showFooterLine: Boolean = true,
+        var showFooterLine: Boolean = false,
+        var headerFontSize: Int = 12,
+        var footerFontSize: Int = 12,
         var tipHeaderLeft: Int = ReadTipConfig.time,
         var tipHeaderMiddle: Int = ReadTipConfig.none,
         var tipHeaderRight: Int = ReadTipConfig.battery,
@@ -278,10 +345,48 @@ object ReadBookConfig {
     ) {
 
         fun applyInkDefaults(): Config = apply {
-            name = "墨水屏"
+            if (name.isBlank()) name = "墨水屏"
+            // 墨水屏统一白底：清理旧版本残留的背景。
+            // - bgType=1 且不是唯一预制的“纯白.jpg” → 旧图案（资源已删）归白；
+            // - bgType=0 且非纯白 → 旧预设色（米白/护眼黄等）归白；
+            // - 相册自选背景(bgType=2)与“纯白.jpg”是主动选择，予以保留。
+            when {
+                bgType == 1 && bgStr != "纯白.jpg" -> {
+                    bgType = 0
+                    bgStr = "#FFFFFF"
+                }
+                bgType == 0 && !bgStr.equals("#FFFFFF", true) -> {
+                    bgStr = "#FFFFFF"
+                }
+            }
         }
 
-
         fun curStatusIconDark(): Boolean = true
+
+        /** 设置背景（bgType: 0 颜色 / 1 assets 图片 / 2 外部图片） */
+        fun setCurBg(type: Int, bg: String) {
+            bgType = type
+            bgStr = bg
+        }
+
+        /** 当前背景 Drawable；文字恒黑，背景可换 */
+        fun curBgDrawable(width: Int, height: Int): Drawable {
+            val res = appCtx.resources
+            return try {
+                when (bgType) {
+                    0 -> ColorDrawable(Color.parseColor(bgStr))
+                    1 -> BitmapDrawable(
+                        res,
+                        BitmapUtils.decodeAssetsBitmap(
+                            appCtx, "bg${File.separator}$bgStr", width, height
+                        )
+                    )
+                    else -> BitmapDrawable(res, BitmapUtils.decodeBitmap(bgStr, width, height))
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+                ColorDrawable(Color.WHITE)
+            }
+        }
     }
 }

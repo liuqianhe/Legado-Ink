@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@color/md_grey_300" />
-    <item android:state_focused="true" android:drawable="@color/md_grey_300" />
+    <!-- 按键区域点击漂白：按下不再出现灰块，保持白底黑字对比 -->
+    <item android:state_pressed="true" android:drawable="@color/transparent" />
+    <item android:state_focused="true" android:drawable="@color/transparent" />
     <item android:drawable="@android:color/transparent" />
 </selector>

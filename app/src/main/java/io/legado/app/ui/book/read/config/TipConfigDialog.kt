@@ -44,6 +44,12 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         tvFooterMiddle.text = ReadTipConfig.tipFooterMiddleStr
         tvFooterRight.text = ReadTipConfig.tipFooterRightStr
 
+        // 页眉/页脚字号：progress = 字号 - 最小值(6)，范围 6~24sp
+        dsbHeaderFontSize.valueFormat = { (it + ReadBookConfig.minTipFontSize).toString() }
+        dsbFooterFontSize.valueFormat = { (it + ReadBookConfig.minTipFontSize).toString() }
+        dsbHeaderFontSize.progress = ReadBookConfig.headerFontSize - ReadBookConfig.minTipFontSize
+        dsbFooterFontSize.progress = ReadBookConfig.footerFontSize - ReadBookConfig.minTipFontSize
+
     }
 
     private fun initEvent() = binding.run {
@@ -61,6 +67,14 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         }
         dsbTitleBottom.onChanged = {
             ReadBookConfig.titleBottomSpacing = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbHeaderFontSize.onChanged = {
+            ReadBookConfig.headerFontSize = it + ReadBookConfig.minTipFontSize
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbFooterFontSize.onChanged = {
+            ReadBookConfig.footerFontSize = it + ReadBookConfig.minTipFontSize
             postEvent(EventBus.UP_CONFIG, true)
         }
         llHeaderShow.setOnClickListener {

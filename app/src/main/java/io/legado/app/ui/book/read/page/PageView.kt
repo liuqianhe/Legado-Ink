@@ -42,7 +42,9 @@ class PageView(context: Context) : FrameLayout(context) {
         get() {
             val h1 = if (ReadBookConfig.hideStatusBar) 0 else context.statusBarHeight
             val h2 = if (binding.llHeader.isGone) 0 else binding.llHeader.height
-            return h1 + h2
+            // 上限保护：页眉(含状态栏)不得超过屏幕高度的 12%，避免字号过大遮住正文
+            val maxH = (context.resources.displayMetrics.heightPixels * 0.12f).toInt()
+            return (h1 + h2).coerceAtMost(maxH)
         }
 
     init {
@@ -166,6 +168,30 @@ class PageView(context: Context) : FrameLayout(context) {
             typeface = ChapterProvider.typeface
             textSize = 12f
         }
+        // 页眉/页脚字号独立可调（对齐海信版），覆盖上面的固定值
+        applyTipFontSize(binding.llHeader, ReadBookConfig.headerFontSize)
+        applyTipFontSize(binding.llFooter, ReadBookConfig.footerFontSize)
+    }
+
+    /**
+     * 递归给页眉/页脚容器内的文字视图设置字号；电池图标略小一档。
+     * 字号已在 ReadBookConfig 里 coerceIn(6,24)，这里再兜底，避免过大遮挡正文。
+     */
+    private fun applyTipFontSize(container: android.view.ViewGroup, sizeSp: Int) {
+        val safeSize = sizeSp.coerceIn(ReadBookConfig.minTipFontSize, ReadBookConfig.maxTipFontSize)
+        fun walk(v: android.view.View) {
+            if (v is BatteryView) {
+                v.textSize = if (v.isBattery) {
+                    (safeSize - 2).coerceAtLeast(ReadBookConfig.minTipFontSize).toFloat()
+                } else {
+                    safeSize.toFloat()
+                }
+            }
+            if (v is android.view.ViewGroup) {
+                for (i in 0 until v.childCount) walk(v.getChildAt(i))
+            }
+        }
+        for (i in 0 until container.childCount) walk(container.getChildAt(i))
     }
 
     private fun getTipView(tip: Int): BatteryView? = binding.run {
@@ -273,6 +299,7 @@ class PageView(context: Context) : FrameLayout(context) {
         return binding.contentTextView.createBookmark()
     }
 
+    /** 墨水屏下划线：转发到 ContentTextView */
     val selectedText: String get() = binding.contentTextView.selectedText
 
     val textPage get() = binding.contentTextView.textPage

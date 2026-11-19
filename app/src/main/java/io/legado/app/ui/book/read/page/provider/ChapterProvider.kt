@@ -12,6 +12,8 @@ import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.help.AppConfig
 import io.legado.app.help.ReadBookConfig
+import io.legado.app.help.underline.DialogueRange
+import io.legado.app.help.underline.UnderlineStore
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.page.entities.TextChapter
 import io.legado.app.ui.book.read.page.entities.TextChar
@@ -192,12 +194,72 @@ object ChapterProvider {
             item.upLinesPosition()
         }
 
+        // 墨水屏下划线：根据保存的记录给 TextChar 打标（章内字符偏移坐标系，与书签一致）
+        applyUnderlines(book, bookChapter.index, textPages)
+
         return TextChapter(
             bookChapter.index, displayTitle,
             bookChapter.getAbsoluteURL(),
             textPages, chapterSize,
             bookChapter.isVip, bookChapter.isPay
         )
+    }
+
+    /**
+     * 墨水屏下划线打标（规则式，对齐海信版）：
+     *  - 全局下划线：正文每一行（排除标题/图片行）整行打标，与正文/对话互斥
+     *  - 正文下划线 + 对话下划线：可共存，逐行用预制对话正则识别，
+     *    命中的字符打 dialogueUnderlineKind，其余打 underlineKind
+     * 坐标系直接用 textChars 索引，保证与绘制完全一致。
+     */
+    private fun applyUnderlines(book: Book, chapterIndex: Int, textPages: List<TextPage>) {
+        val cfg = UnderlineStore.getConfig()
+        if (!cfg.anyEnabled) return
+        val globalOn = cfg.globalKind != UnderlineStore.Kind.NONE.value
+        val bodyOn = cfg.bodyKind != UnderlineStore.Kind.NONE.value
+        val dialogueOn = cfg.dialogueKind != UnderlineStore.Kind.NONE.value
+
+        textPages.forEach { page ->
+            page.textLines.forEach { line ->
+                if (line.isTitle || line.isImage) return@forEach
+                val chars = line.textChars
+                if (globalOn) {
+                    // 全局：整行（每个非图片字符）都画同一线型
+                    chars.forEach { tc ->
+                        if (!tc.isImage) tc.underlineKind = cfg.globalKind
+                    }
+                    return@forEach
+                }
+                if (!bodyOn && !dialogueOn) return@forEach
+
+                // 用 charData 拼行文本，并记录 sb 索引 -> chars 索引，保证正则命中位置精确对齐
+                val sb = StringBuilder()
+                val indexMap = mutableListOf<Int>()
+                chars.forEachIndexed { ci, tc ->
+                    if (!tc.isImage) {
+                        indexMap.add(ci)
+                        sb.append(tc.charData)
+                    }
+                }
+                if (sb.isEmpty()) return@forEach
+                val lineText = sb.toString()
+
+                val dialogueRanges = if (dialogueOn) DialogueRange.findRanges(lineText) else emptyList()
+                val bodyRanges = if (bodyOn) {
+                    DialogueRange.findBodyRanges(lineText, dialogueRanges)
+                } else emptyList()
+
+                indexMap.forEachIndexed { sbIndex, ci ->
+                    val tc = chars[ci]
+                    when {
+                        dialogueRanges.any { sbIndex in it } ->
+                            tc.dialogueUnderlineKind = cfg.dialogueKind
+                        bodyRanges.any { sbIndex in it } ->
+                            tc.underlineKind = cfg.bodyKind
+                    }
+                }
+            }
+        }
     }
 
     private fun setTypeImage(

@@ -864,4 +864,46 @@
     <string name="pull_cloud_progress_success">已同步云端进度</string>
     <string name="pull_cloud_progress_fail">拉取云端进度失败</string>
 
+    <!-- 墨水屏下划线功能 -->
+    <string name="ink_underline">下划线</string>
+    <string name="ink_underline_scope">作用范围</string>
+    <string name="ink_underline_scope_dialogue">对话</string>
+    <string name="ink_underline_scope_all">全部正文</string>
+    <string name="ink_underline_style">样式</string>
+    <string name="ink_underline_solid">标准下划线</string>
+    <string name="ink_underline_dashed">虚线</string>
+    <string name="ink_underline_dotted">点线</string>
+    <string name="ink_underline_added">已添加下划线</string>
+    <string name="ink_underline_no_dialogue">选区内未找到对话</string>
+    <string name="ink_underline_clear">清除本章下划线</string>
+    <string name="ink_underline_cleared">已清除本章下划线</string>
+
+    <!-- 墨水屏：页眉页脚字号、主题/布局/背景、下划线规则 -->
+    <string name="header_font_size">页眉字体大小</string>
+    <string name="footer_font_size">页脚字体大小</string>
+    <string name="ink_theme_layout">主题与布局</string>
+    <string name="ink_theme">主题</string>
+    <string name="ink_layout">布局</string>
+    <string name="ink_background">背景</string>
+    <string name="ink_bg_color">背景颜色</string>
+    <string name="ink_bg_image">背景图片</string>
+    <string name="ink_bg_pick">从相册选择</string>
+    <string name="ink_bg_reset">重置背景</string>
+    <string name="ink_bg_hint">墨水屏仅预制纯白背景（白底黑字）；文字恒为纯黑以保证最高对比度。也可从相册自选图片。</string>
+    <string name="ink_layout_manage">布局管理</string>
+    <string name="ink_layout_switch">切换布局</string>
+    <string name="ink_layout_add">新建布局</string>
+    <string name="ink_layout_delete">删除布局</string>
+    <string name="ink_layout_rename">重命名布局</string>
+    <string name="ink_layout_saved">布局已保存</string>
+    <string name="ink_layout_min">至少保留一个布局</string>
+    <string name="ink_underline_mode">下划线模式</string>
+    <string name="ink_underline_off">关闭</string>
+    <string name="ink_underline_global">全局下划线</string>
+    <string name="ink_underline_body">正文下划线</string>
+    <string name="ink_underline_dialogue">对话下划线</string>
+    <string name="ink_underline_double">双下划线</string>
+    <string name="ink_underline_wavy">波浪线</string>
+    <string name="ink_underline_config">下划线设置</string>
+
 </resources>

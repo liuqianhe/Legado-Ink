@@ -2,8 +2,7 @@ package io.legado.app.ui.widget.text
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.RoundRectShape
+import android.graphics.drawable.GradientDrawable
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -15,7 +14,6 @@ import android.widget.FrameLayout.LayoutParams
 import androidx.appcompat.widget.AppCompatTextView
 import io.legado.app.R
 import io.legado.app.lib.theme.accentColor
-import io.legado.app.utils.getCompatColor
 import io.legado.app.utils.gone
 import io.legado.app.utils.visible
 
@@ -87,8 +85,8 @@ class BadgeView @JvmOverloads constructor(
             setLayoutParams(layoutParams)
         }
 
-        // set default font
-        setTextColor(Color.WHITE)
+        // 墨水屏适配：黑字（原 Color.WHITE 白字）
+        setTextColor(Color.BLACK)
         //setTypeface(Typeface.DEFAULT_BOLD);
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
         setPadding(dip2Px(5f), dip2Px(1f), dip2Px(5f), dip2Px(1f))
@@ -107,17 +105,22 @@ class BadgeView @JvmOverloads constructor(
     }
 
     fun setBackground(dipRadius: Float, badgeColor: Int) {
-        val radius = dip2Px(dipRadius).toFloat()
-        val radiusArray =
-            floatArrayOf(radius, radius, radius, radius, radius, radius, radius, radius)
-        if (flatangle) {
-            radiusArray.fill(0f, 0, 3)
-        }
+        setEinkBackground(dipRadius, 1f)
+    }
 
-        val roundRect = RoundRectShape(radiusArray, null, null)
-        val bgDrawable = ShapeDrawable(roundRect)
-        bgDrawable.paint.color = badgeColor
-        background = bgDrawable
+    /** 墨水屏角标：白底黑字黑框；strokeDip 控制描边粗细以区分状态 */
+    private fun setEinkBackground(dipRadius: Float, strokeDip: Float) {
+        val radius = dip2Px(dipRadius).toFloat()
+        val drawable = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadii = floatArrayOf(radius, radius, radius, radius, radius, radius, radius, radius)
+            if (flatangle) {
+                cornerRadii = floatArrayOf(0f, 0f, 0f, 0f, radius, radius, radius, radius)
+            }
+            setColor(Color.WHITE)
+            setStroke(dip2Px(strokeDip), Color.BLACK)
+        }
+        background = drawable
     }
 
     fun setBackground(badgeColor: Int) {
@@ -146,11 +149,8 @@ class BadgeView @JvmOverloads constructor(
     }
 
     fun setHighlight(highlight: Boolean) {
-        if (highlight) {
-            setBackground(context.accentColor)
-        } else {
-            setBackground(context.getCompatColor(R.color.darker_gray))
-        }
+        // 墨水屏适配：两种情况都白底黑字黑框，有未读更新时描边加粗以示区分
+        setEinkBackground(radius, if (highlight) 2f else 1f)
     }
 
     fun setBadgeMargin(dipMargin: Int) {

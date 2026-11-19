@@ -23,6 +23,7 @@ import io.legado.app.help.IntentData
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.help.ReadTipConfig
 import io.legado.app.help.coroutine.Coroutine
+import io.legado.app.help.underline.UnderlineStore
 import io.legado.app.help.storage.AppWebDav
 import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.alert
@@ -243,6 +244,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             R.id.menu_update_toc -> ReadBook.book?.let {
                 loadChapterList(it)
             }
+            R.id.menu_underline_config -> showUnderlineConfig()
             R.id.menu_enable_replace -> ReadBook.book?.let {
                 it.setUseReplaceRule(!it.getUseReplaceRule())
                 menu?.findItem(R.id.menu_enable_replace)?.isChecked = it.getUseReplaceRule()
@@ -274,6 +276,68 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
         }
         return super.onCompatOptionsItemSelected(item)
+    }
+
+    /**
+     * 下划线设置（右上角菜单入口）。
+     * 规则：全局 与 正文/对话 互斥；正文与对话可共存，各自独立选线型。
+     * 对话范围用预制正则识别（见 DialogueRange），设备无需输入正则。
+     */
+    private fun showUnderlineConfig() {
+        val cfg = UnderlineStore.getConfig()
+        val kindNames = listOf(
+            getString(R.string.ink_underline_solid),
+            getString(R.string.ink_underline_dashed),
+            getString(R.string.ink_underline_double),
+            getString(R.string.ink_underline_wavy),
+            getString(R.string.ink_underline_dotted)
+        )
+        val kinds = UnderlineStore.selectableKinds
+
+        fun pickKind(title: String, onPicked: (UnderlineStore.Kind) -> Unit) {
+            selector(title, kindNames) { _, idx -> onPicked(kinds[idx]) }
+        }
+        fun apply(block: UnderlineStore.Config.() -> Unit) {
+            val c = cfg.copy().apply(block)
+            UnderlineStore.saveConfig(c)
+            ContentTextView.clearPreparedPage()
+            ReadBook.loadContent(resetPageOffset = false)
+        }
+
+        // 模式：0 关闭 / 1 全局 / 2 正文 / 3 对话 / 4 正文+对话
+        val modes = listOf(
+            getString(R.string.ink_underline_off),
+            getString(R.string.ink_underline_global),
+            getString(R.string.ink_underline_body),
+            getString(R.string.ink_underline_dialogue),
+            "${getString(R.string.ink_underline_body)}+${getString(R.string.ink_underline_dialogue)}"
+        )
+        selector(getString(R.string.ink_underline_config), modes) { _, mode ->
+            when (mode) {
+                0 -> apply {
+                    globalKind = UnderlineStore.Kind.NONE.value
+                    bodyKind = UnderlineStore.Kind.NONE.value
+                    dialogueKind = UnderlineStore.Kind.NONE.value
+                }
+                1 -> pickKind(getString(R.string.ink_underline_global)) { k ->
+                    apply { setGlobal(k) }
+                }
+                2 -> pickKind(getString(R.string.ink_underline_body)) { k ->
+                    apply { setBody(k) }
+                }
+                3 -> pickKind(getString(R.string.ink_underline_dialogue)) { k ->
+                    apply { setDialogue(k) }
+                }
+                4 -> pickKind(getString(R.string.ink_underline_body)) { bodyKindPicked ->
+                    pickKind(getString(R.string.ink_underline_dialogue)) { dlgKindPicked ->
+                        apply {
+                            setBody(bodyKindPicked)
+                            setDialogue(dlgKindPicked)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

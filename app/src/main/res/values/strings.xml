@@ -865,4 +865,46 @@
     <string name="pull_cloud_progress_success">Cloud progress synced</string>
     <string name="pull_cloud_progress_fail">Failed to pull cloud progress</string>
 
+    <!-- 墨水屏下划线功能 -->
+    <string name="ink_underline">Underline</string>
+    <string name="ink_underline_scope">Scope</string>
+    <string name="ink_underline_scope_dialogue">Dialogue</string>
+    <string name="ink_underline_scope_all">All text</string>
+    <string name="ink_underline_style">Style</string>
+    <string name="ink_underline_solid">Solid</string>
+    <string name="ink_underline_dashed">Dashed</string>
+    <string name="ink_underline_dotted">Dotted</string>
+    <string name="ink_underline_added">Underline added</string>
+    <string name="ink_underline_no_dialogue">No dialogue found in selection</string>
+    <string name="ink_underline_clear">Clear underlines in chapter</string>
+    <string name="ink_underline_cleared">Chapter underlines cleared</string>
+
+    <!-- E-ink: header/footer font size, theme/layout/background, underline rules -->
+    <string name="header_font_size">Header font size</string>
+    <string name="footer_font_size">Footer font size</string>
+    <string name="ink_theme_layout">Theme &amp; Layout</string>
+    <string name="ink_theme">Theme</string>
+    <string name="ink_layout">Layout</string>
+    <string name="ink_background">Background</string>
+    <string name="ink_bg_color">Background color</string>
+    <string name="ink_bg_image">Background image</string>
+    <string name="ink_bg_pick">Pick from gallery</string>
+    <string name="ink_bg_reset">Reset background</string>
+    <string name="ink_bg_hint">E-ink ships a single pure-white background (white with black text); text stays pure black for max contrast. You can still pick an image from the gallery.</string>
+    <string name="ink_layout_manage">Manage layouts</string>
+    <string name="ink_layout_switch">Switch layout</string>
+    <string name="ink_layout_add">Add layout</string>
+    <string name="ink_layout_delete">Delete layout</string>
+    <string name="ink_layout_rename">Rename layout</string>
+    <string name="ink_layout_saved">Layout saved</string>
+    <string name="ink_layout_min">Keep at least one layout</string>
+    <string name="ink_underline_mode">Underline mode</string>
+    <string name="ink_underline_off">Off</string>
+    <string name="ink_underline_global">All lines</string>
+    <string name="ink_underline_body">Body text</string>
+    <string name="ink_underline_dialogue">Dialogue</string>
+    <string name="ink_underline_double">Double</string>
+    <string name="ink_underline_wavy">Wavy</string>
+    <string name="ink_underline_config">Underline settings</string>
+
 </resources>

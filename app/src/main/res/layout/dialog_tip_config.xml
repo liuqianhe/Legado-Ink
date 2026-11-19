@@ -293,8 +293,27 @@
         <io.legado.app.ui.widget.text.AccentTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/header_footer"
             android:textSize="18sp" />
+
+        <io.legado.app.ui.widget.DetailSeekBar
+            android:id="@+id/dsb_header_font_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:max="18"
+            app:title="@string/header_font_size" />
+
+        <io.legado.app.ui.widget.DetailSeekBar
+            android:id="@+id/dsb_footer_font_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:max="18"
+            app:title="@string/footer_font_size" />
 
 
     </LinearLayout>

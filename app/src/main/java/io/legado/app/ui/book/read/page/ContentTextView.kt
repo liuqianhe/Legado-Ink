@@ -14,6 +14,8 @@ import io.legado.app.R
 import io.legado.app.constant.PreferKey
 import io.legado.app.data.entities.Bookmark
 import io.legado.app.help.ReadBookConfig
+import io.legado.app.help.underline.UnderlineDraw
+import io.legado.app.help.underline.UnderlineStore
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.PhotoDialog
 import io.legado.app.ui.book.read.page.entities.TextChar
@@ -147,7 +149,11 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     }
 
     private fun isPlainText(page: TextPage): Boolean = page.textLines.none { line ->
-        line.textChars.any { it.isImage || it.selected }
+        line.textChars.any {
+            it.isImage || it.selected ||
+                    it.underlineKind != UnderlineStore.Kind.NONE.value ||
+                    it.dialogueUnderlineKind != UnderlineStore.Kind.NONE.value
+        }
     }
 
     fun upVisibleRect() {
@@ -276,6 +282,54 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         textChars.forEach {
             if (it.selected) canvas.drawRect(it.start, lineTop, it.end, lineBottom, selectedPaint)
         }
+        // 墨水屏下划线：合并连续相同线型的字符成整段再画，保证虚线/波浪相位连续。
+        // 正文线与对话线可在同一行共存，故错开 y 位置（正文偏上、对话偏下）。
+        drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = false)
+        drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = true)
+    }
+
+    /**
+     * 把连续且线型相同的字符合并为区间，一次绘制。
+     * @param useDialogueField false=画正文/全局下划线，true=画对话下划线（y 略微下移）
+     */
+    private fun drawUnderlineRuns(
+        canvas: Canvas,
+        textChars: List<io.legado.app.ui.book.read.page.entities.TextChar>,
+        lineBase: Float,
+        lineBottom: Float,
+        color: Int,
+        useDialogueField: Boolean
+    ) {
+        val descent = lineBottom - lineBase
+        val y = lineBase + descent * if (useDialogueField) 0.62f else 0.35f
+        var runStart = -1f
+        var runEnd = -1f
+        var runKind = UnderlineStore.Kind.NONE
+
+        fun flush() {
+            if (runKind != UnderlineStore.Kind.NONE && runEnd > runStart) {
+                UnderlineDraw.draw(canvas, runStart, runEnd, y, runKind, color, runEnd - runStart)
+            }
+        }
+
+        textChars.forEach { tc ->
+            val kindValue = if (useDialogueField) tc.dialogueUnderlineKind else tc.underlineKind
+            val kind = UnderlineStore.Kind.from(kindValue)
+            if (tc.isImage || kind == UnderlineStore.Kind.NONE) {
+                flush()
+                runStart = -1f
+                runEnd = -1f
+                runKind = UnderlineStore.Kind.NONE
+            } else if (runKind == kind && runStart >= 0f) {
+                runEnd = tc.end
+            } else {
+                flush()
+                runStart = tc.start
+                runEnd = tc.end
+                runKind = kind
+            }
+        }
+        flush()
     }
 
     /**

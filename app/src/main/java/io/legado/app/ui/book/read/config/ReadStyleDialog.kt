@@ -95,6 +95,9 @@ class ReadStyleDialog : BaseDialogFragment(R.layout.dialog_read_book_style),
         tvTip.setOnClickListener {
             TipConfigDialog().show(childFragmentManager, "tipConfigDialog")
         }
+        tvThemeLayout.setOnClickListener {
+            ThemeLayoutDialog().show(childFragmentManager, "themeLayoutDialog")
+        }
         dsbTextSize.onChanged = {
             ReadBookConfig.textSize = it + 5
             postEvent(EventBus.UP_CONFIG, true)

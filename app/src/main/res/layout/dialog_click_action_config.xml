@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  九宫格点击区域设置（墨水屏适配）
+  白底黑字 + 黑色描边 + 浅色遮罩。
+  网格线用「容器黑底 + padding 2dp，格子白底 + margin 1dp」露出，避免相邻两格双线。
+  所有控件 id 保持不变，事件绑定不动。
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/translucent"
+    android:background="@color/eink_scrim"
     android:padding="3dp"
     android:orientation="vertical"
     tools:ignore="NestedWeights">
@@ -13,7 +19,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_translucent_card"
+        android:background="@drawable/shape_eink_frame"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:layout_margin="3dp"
@@ -28,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/click_regional_config"
-            android:textColor="@color/white" />
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp" />
 
         <ImageView
             android:id="@+id/iv_close"
@@ -36,107 +43,121 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/colse"
             android:src="@drawable/ic_baseline_close"
-            app:tint="@color/white" />
+            app:tint="@color/eink_cell_text" />
 
     </LinearLayout>
 
+    <!-- 第一行：黑底容器露出网格线 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@color/eink_grid_line"
+        android:padding="2dp"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_top_left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="上一页" />
 
         <TextView
             android:id="@+id/tv_top_center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="上一页" />
 
         <TextView
             android:id="@+id/tv_top_right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="下一页" />
-
     </LinearLayout>
 
+    <!-- 第二行 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@color/eink_grid_line"
+        android:padding="2dp"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_middle_left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="上一页" />
 
         <TextView
             android:id="@+id/tv_middle_center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
             android:text="@string/menu"
-            android:textColor="@color/white" />
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tv_middle_right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="下一页" />
-
     </LinearLayout>
 
+    <!-- 第三行 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@color/eink_grid_line"
+        android:padding="2dp"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_bottom_left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:ignore="NestedWeights"
             tools:text="上一页" />
 
@@ -144,24 +165,25 @@
             android:id="@+id/tv_bottom_center"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="下一页" />
 
         <TextView
             android:id="@+id/tv_bottom_right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_translucent_card"
+            android:background="@color/eink_cell_bg"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/eink_cell_text"
+            android:textSize="18sp"
             tools:text="下一页" />
-
     </LinearLayout>
 
 </LinearLayout>

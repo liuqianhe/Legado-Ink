@@ -82,6 +82,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_underline_config"
+        android:title="@string/ink_underline"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_log"
         android:title="@string/log"
         app:showAsAction="never" />

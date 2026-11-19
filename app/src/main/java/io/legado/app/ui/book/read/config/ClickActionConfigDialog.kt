@@ -45,7 +45,10 @@ class ClickActionConfigDialog : BaseDialogFragment(R.layout.dialog_click_action_
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         (activity as ReadBookActivity).bottomDialog++
-        view.setBackgroundColor(getCompatColor(R.color.translucent))
+        // 墨水屏模式保留布局里的白底黑框，不要用深色半透明覆盖
+        if (!AppConfig.isEInkMode) {
+            view.setBackgroundColor(getCompatColor(R.color.translucent))
+        }
         initData()
         initViewEvent()
     }
