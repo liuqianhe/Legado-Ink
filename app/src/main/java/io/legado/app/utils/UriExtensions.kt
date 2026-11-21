@@ -16,34 +16,35 @@ fun Uri.isContentScheme() = this.scheme == "content"
 
 /**
  * 读取URI
+ *
+ * 墨水屏/API19 说明：这里不再走 PermissionsCompat 回调。4.4 存储权限是安装时授予的，
+ * 走权限框架反而可能因为回调时机/宿主对象问题静默失败（表现为“选了图但没生效”）。
+ * 直接读 stream / File，失败一律抛出并提示。
  */
 fun AppCompatActivity.readUri(uri: Uri?, success: (name: String, bytes: ByteArray) -> Unit) {
     uri ?: return
     try {
+        val name: String
+        val bytes: ByteArray
         if (uri.isContentScheme()) {
             val doc = DocumentFile.fromSingleUri(this, uri)
-            doc ?: throw NoStackTraceException("未获取到文件")
-            val name = doc.name ?: throw NoStackTraceException("未获取到文件名")
-            val fileBytes = DocumentUtils.readBytes(this, doc.uri)
-            success.invoke(name, fileBytes)
+            name = doc?.name
+                ?: uri.lastPathSegment?.substringAfterLast('/')
+                ?: "picked_file"
+            bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw NoStackTraceException("无法读取所选文件")
         } else {
-            PermissionsCompat.Builder(this)
-                .addPermissions(
-                    Permissions.READ_EXTERNAL_STORAGE,
-                    Permissions.WRITE_EXTERNAL_STORAGE
-                )
-                .rationale(R.string.bg_image_per)
-                .onGranted {
-                    RealPathUtil.getPath(this, uri)?.let { path ->
-                        val imgFile = File(path)
-                        success.invoke(imgFile.name, imgFile.readBytes())
-                    }
-                }
-                .request()
+            val path = uri.path ?: RealPathUtil.getPath(this, uri)
+            ?: throw NoStackTraceException("无法解析文件路径")
+            val file = File(path)
+            if (!file.exists()) throw NoStackTraceException("文件不存在: $path")
+            name = file.name
+            bytes = file.readBytes()
         }
+        success.invoke(name, bytes)
     } catch (e: Exception) {
         Timber.e(e)
-        toastOnUi(e.localizedMessage ?: "read uri error")
+        toastOnUi("读取失败: ${e.localizedMessage}")
     }
 }
 
@@ -52,31 +53,29 @@ fun AppCompatActivity.readUri(uri: Uri?, success: (name: String, bytes: ByteArra
  */
 fun Fragment.readUri(uri: Uri?, success: (name: String, bytes: ByteArray) -> Unit) {
     uri ?: return
+    val ctx = context ?: return
     try {
+        val name: String
+        val bytes: ByteArray
         if (uri.isContentScheme()) {
-            val doc = DocumentFile.fromSingleUri(requireContext(), uri)
-            doc ?: throw NoStackTraceException("未获取到文件")
-            val name = doc.name ?: throw NoStackTraceException("未获取到文件名")
-            val fileBytes = DocumentUtils.readBytes(requireContext(), doc.uri)
-            success.invoke(name, fileBytes)
+            val doc = DocumentFile.fromSingleUri(ctx, uri)
+            name = doc?.name
+                ?: uri.lastPathSegment?.substringAfterLast('/')
+                ?: "picked_file"
+            bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw NoStackTraceException("无法读取所选文件")
         } else {
-            PermissionsCompat.Builder(this)
-                .addPermissions(
-                    Permissions.READ_EXTERNAL_STORAGE,
-                    Permissions.WRITE_EXTERNAL_STORAGE
-                )
-                .rationale(R.string.bg_image_per)
-                .onGranted {
-                    RealPathUtil.getPath(requireContext(), uri)?.let { path ->
-                        val imgFile = File(path)
-                        success.invoke(imgFile.name, imgFile.readBytes())
-                    }
-                }
-                .request()
+            val path = uri.path ?: RealPathUtil.getPath(ctx, uri)
+            ?: throw NoStackTraceException("无法解析文件路径")
+            val file = File(path)
+            if (!file.exists()) throw NoStackTraceException("文件不存在: $path")
+            name = file.name
+            bytes = file.readBytes()
         }
+        success.invoke(name, bytes)
     } catch (e: Exception) {
         Timber.e(e)
-        toastOnUi(e.localizedMessage ?: "read uri error")
+        toastOnUi("读取失败: ${e.localizedMessage}")
     }
 }
 

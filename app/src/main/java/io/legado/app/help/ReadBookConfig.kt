@@ -1,6 +1,13 @@
 package io.legado.app.help
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -399,12 +406,50 @@ object ReadBookConfig {
                             appCtx, "bg${File.separator}$bgStr", width, height
                         )
                     )
-                    else -> BitmapDrawable(res, BitmapUtils.decodeBitmap(bgStr, width, height))
+                    else -> CenterCropDrawable(BitmapUtils.decodeBitmap(bgStr, width, height))
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Timber.e(e)
                 ColorDrawable(Color.WHITE)
             }
         }
     }
+}
+
+/**
+ * 等比裁切铺满的位图 Drawable（安卓 4.4 的 BitmapDrawable 没有 CENTER_CROP）。
+ * 背景图按原比例铺满整个页面，只裁掉多余部分，不拉伸变形。
+ */
+private class CenterCropDrawable(private val bmp: Bitmap) : Drawable() {
+    private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
+    private val dst = RectF()
+
+    override fun draw(canvas: Canvas) {
+        val b = bounds
+        if (b.isEmpty || bmp.isRecycled) return
+        val bw = bmp.width.toFloat()
+        val bh = bmp.height.toFloat()
+        if (bw <= 0f || bh <= 0f) return
+        val scale = maxOf(b.width() / bw, b.height() / bh)
+        val dw = bw * scale
+        val dh = bh * scale
+        val left = b.left + (b.width() - dw) / 2f
+        val top = b.top + (b.height() - dh) / 2f
+        dst.set(left, top, left + dw, top + dh)
+        canvas.save()
+        canvas.clipRect(b)
+        canvas.drawBitmap(bmp, null, dst, paint)
+        canvas.restore()
+    }
+
+    override fun setAlpha(alpha: Int) {
+        paint.alpha = alpha
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        paint.colorFilter = colorFilter
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun getOpacity(): Int = PixelFormat.OPAQUE
 }

@@ -189,11 +189,12 @@ class BookSourceAdapter(context: Context, val callBack: CallBack) :
                 iv.invisible()
             }
             source.enabledExplore -> {
-                iv.setColorFilter(Color.GREEN)
+                // 墨水屏：不用彩色状态点，启用纯黑、停用灰，靠明度区分
+                iv.setColorFilter(Color.BLACK)
                 iv.visible()
             }
             else -> {
-                iv.setColorFilter(Color.RED)
+                iv.setColorFilter(Color.GRAY)
                 iv.visible()
             }
         }

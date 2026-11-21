@@ -29,11 +29,11 @@
 
     <color name="highlight">#ff000000</color>
 
-    <color name="btn_bg_press">#63ACACAC</color>
-    <color name="btn_bg_press_2">#63858585</color>
-    <color name="btn_bg_press_tp">#632C2C2C</color>
+    <color name="btn_bg_press">#33000000</color>
+    <color name="btn_bg_press_2">#33000000</color>
+    <color name="btn_bg_press_tp">#33000000</color>
 
-    <color name="tv_btn_normal_black">#737373</color>
+    <color name="tv_btn_normal_black">#ff000000</color>
     <color name="tv_btn_press_black">#adadad</color>
 
     <!-- 墨水屏：正文/次要文字与描边统一纯黑，避免半透明灰 -->
@@ -56,10 +56,10 @@
     <color name="darker_gray">#aaaaaaaa</color>
 
     <!-- 分格线背景色 -->
-    <color name="bg_divider_line">#8fe0e0e0</color>
+    <color name="bg_divider_line">#33000000</color>
     <!--statusBarBackground-->
     <color name="status_bar_bag">#19000000</color>
-    <color name="navigation_bar_bag">#f4f4f4</color>
+    <color name="navigation_bar_bag">#ffffffff</color>
 
     <!-- 九宫格点击区域：墨水屏白底黑字黑框 -->
     <color name="eink_cell_bg">#ffffffff</color>

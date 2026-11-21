@@ -125,6 +125,8 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
         launch(Main) {
             val defaultPath = "SD${File.separator}Fonts"
             selectFontDir.launch {
+                // 让自带文件选择器知道哪些是可识别字体（选目录界面字体文件显示纯黑）
+                allowExtensions = arrayOf("ttf", "otf")
                 otherActions = arrayListOf(SelectItem(defaultPath, -1))
             }
         }

@@ -11,6 +11,7 @@ import io.legado.app.help.ReadBookConfig
 import io.legado.app.lib.dialogs.selector
 import io.legado.app.utils.*
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import timber.log.Timber
 import java.io.File
 
 /**
@@ -30,10 +31,23 @@ class ThemeLayoutDialog : BaseDialogFragment(R.layout.dialog_ink_theme_layout) {
 
     private val selectImage = registerForActivityResult(SelectImageContract()) { result ->
         readUri(result?.second) { name, bytes ->
-            val dir = FileUtils.createFileIfNotExist(requireContext().externalFiles, "bg")
-            val file = File(dir, name)
-            file.writeBytes(bytes)
-            applyBg(2, file.absolutePath)
+            try {
+                // 注意：这里必须是“目录”。旧代码误用 createFileIfNotExist 建了一个名为 bg 的
+                // 空文件，导致后续 File(bg, name).writeBytes() 必然失败（父路径不是目录），
+                // 表现就是“选了图片但背景没变化”。顺带清理历史遗留的同名空文件。
+                val dir = File(FileUtils.getPath(requireContext().externalFiles, "bg"))
+                if (dir.exists() && !dir.isDirectory) dir.delete()
+                if (!dir.exists()) dir.mkdirs()
+                val safeName = name.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+                    .ifBlank { "bg_${System.currentTimeMillis()}.jpg" }
+                val file = File(dir, safeName)
+                file.writeBytes(bytes)
+                applyBg(2, file.absolutePath)
+                context?.toastOnUi("背景已应用: $safeName")
+            } catch (e: Exception) {
+                Timber.e(e)
+                context?.toastOnUi("背景保存失败: ${e.localizedMessage}")
+            }
         }
     }
 

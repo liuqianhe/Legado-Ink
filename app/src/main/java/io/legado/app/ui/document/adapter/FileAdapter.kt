@@ -97,21 +97,23 @@ class FileAdapter(context: Context, val callBack: CallBack) :
     ) {
         binding.apply {
             imageView.setImageDrawable(item.icon)
+            // 墨水屏：预置 PNG 图标本身是深灰，统一染成纯黑，避免发灰
+            imageView.setColorFilter(primaryTextColor)
             textView.text = item.name
             if (item.isDirectory) {
                 textView.setTextColor(primaryTextColor)
             } else {
-                if (callBack.isSelectDir) {
-                    textView.setTextColor(disabledTextColor)
-                } else {
-                    callBack.allowExtensions?.let {
-                        if (it.isEmpty() || it.contains(FileUtils.getExtension(item.path))) {
-                            textView.setTextColor(primaryTextColor)
-                        } else {
-                            textView.setTextColor(disabledTextColor)
-                        }
-                    } ?: textView.setTextColor(primaryTextColor)
-                }
+                // 选目录模式下也要区分：可识别的文件纯黑，其它才灰。
+                // 旧逻辑是 isSelectDir 时一律灰，导致 epub/ttf 这些目标文件看不清。
+                callBack.allowExtensions?.let {
+                    if (it.isEmpty() || it.any { ext ->
+                            ext.equals(FileUtils.getExtension(item.path), ignoreCase = true)
+                        }) {
+                        textView.setTextColor(primaryTextColor)
+                    } else {
+                        textView.setTextColor(disabledTextColor)
+                    }
+                } ?: textView.setTextColor(primaryTextColor)
             }
         }
     }

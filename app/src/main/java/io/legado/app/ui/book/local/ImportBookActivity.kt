@@ -42,6 +42,8 @@ class ImportBookActivity : VMBaseActivity<ActivityImportBookBinding, ImportBookV
     override val binding by viewBinding(ActivityImportBookBinding::inflate)
     override val viewModel by viewModels<ImportBookViewModel>()
     private val bookFileRegex = Regex("(?i).*\\.(txt|epub|umd)")
+    // 传给自带文件选择器：可识别的书籍文件在选目录界面显示纯黑，其它格式才灰
+    private val bookExtensions = arrayOf("txt", "epub", "umd")
     private var rootDoc: DocumentFile? = null
     private val subDocs = arrayListOf<DocumentFile>()
     private val adapter by lazy { ImportBookAdapter(this, this) }
@@ -75,7 +77,7 @@ class ImportBookActivity : VMBaseActivity<ActivityImportBookBinding, ImportBookV
 
     override fun onCompatOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_select_folder -> selectFolder.launch(null)
+            R.id.menu_select_folder -> selectFolder.launch { allowExtensions = bookExtensions }
             R.id.menu_scan_folder -> scanFolder()
             R.id.menu_import_file_name -> alertImportFileName()
         }
@@ -136,14 +138,14 @@ class ImportBookActivity : VMBaseActivity<ActivityImportBookBinding, ImportBookV
         when {
             lastPath.isNullOrEmpty() -> {
                 binding.tvEmptyMsg.visible()
-                selectFolder.launch(null)
+                selectFolder.launch { allowExtensions = bookExtensions }
             }
             lastPath.isContentScheme() -> {
                 val rootUri = Uri.parse(lastPath)
                 rootDoc = DocumentFile.fromTreeUri(this, rootUri)
                 if (rootDoc == null) {
                     binding.tvEmptyMsg.visible()
-                    selectFolder.launch(null)
+                    selectFolder.launch { allowExtensions = bookExtensions }
                 } else {
                     subDocs.clear()
                     upPath()
@@ -151,7 +153,7 @@ class ImportBookActivity : VMBaseActivity<ActivityImportBookBinding, ImportBookV
             }
             Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> {
                 binding.tvEmptyMsg.visible()
-                selectFolder.launch(null)
+                selectFolder.launch { allowExtensions = bookExtensions }
             }
             else -> {
                 binding.tvEmptyMsg.visible()
