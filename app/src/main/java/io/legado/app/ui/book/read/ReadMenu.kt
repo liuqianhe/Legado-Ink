@@ -3,6 +3,7 @@ package io.legado.app.ui.book.read
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.Gravity
@@ -76,14 +77,15 @@ class ReadMenu @JvmOverloads constructor(
         brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
         llBrightness.background = brightnessBackground
         llBottomBg.setBackgroundColor(bgColor)
+        // 墨水屏：四个悬浮图标统一高对比纯黑，不用主题灰
         fabSearch.backgroundTintList = bottomBackgroundList
-        fabSearch.setColorFilter(textColor)
+        fabSearch.setColorFilter(Color.BLACK)
         fabPageRefresh.backgroundTintList = bottomBackgroundList
-        fabPageRefresh.setColorFilter(textColor)
+        fabPageRefresh.setColorFilter(Color.BLACK)
         fabQuickText.backgroundTintList = bottomBackgroundList
-        fabQuickText.setColorFilter(textColor)
+        fabQuickText.setColorFilter(Color.BLACK)
         fabReplaceRule.backgroundTintList = bottomBackgroundList
-        fabReplaceRule.setColorFilter(textColor)
+        fabReplaceRule.setColorFilter(Color.BLACK)
         tvPre.setTextColor(textColor)
         tvNext.setTextColor(textColor)
         ivCatalog.setColorFilter(textColor)

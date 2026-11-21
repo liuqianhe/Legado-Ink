@@ -671,6 +671,7 @@
     <string name="information">信息</string>
     <string name="switchLayout">切换布局</string>
     <string name="text_font_weight_converter">文章字重切换</string>
+    <string name="ink_text_weight_short">字重</string>
     <string name="full_screen_gestures_support">全面屏手势优化</string>
 
     <!--color-->
@@ -937,5 +938,6 @@
     <string name="ink_full_refresh">全刷</string>
     <string name="ink_font_switch">字体</string>
     <string name="ink_quick_text">快捷排版</string>
+    <string name="ink_text_weight_value">字重%1$d</string>
 
 </resources>

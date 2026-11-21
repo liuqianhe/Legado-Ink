@@ -186,6 +186,20 @@ object ReadBookConfig {
 
     val config get() = durConfig
 
+    /** 首次在竖排下改布局时，把当前横排布局整体复制到竖排字段，避免跳到硬编码默认值 */
+    private fun ensureVerticalLayout() {
+        if (config.vLayoutCustom) return
+        config.vTextBold = config.textBold
+        config.vTextSize = config.textSize
+        config.vLetterSpacing = config.letterSpacing
+        config.vLineSpacingExtra = config.lineSpacingExtra
+        config.vParagraphSpacing = config.paragraphSpacing
+        config.vLayoutCustom = true
+    }
+
+    private val useVerticalLayout: Boolean
+        get() = textVertical && config.vLayoutCustom
+
     var textFont: String
         get() = config.textFont
         set(value) {
@@ -193,33 +207,48 @@ object ReadBookConfig {
         }
 
     var textBold: Int
-        get() = config.textBold
+        get() = if (useVerticalLayout) config.vTextBold else config.textBold
         set(value) {
-            config.textBold = value
+            if (textVertical) {
+                ensureVerticalLayout()
+                config.vTextBold = value
+            } else config.textBold = value
         }
 
     var textSize: Int
-        get() = config.textSize
+        get() = if (useVerticalLayout) config.vTextSize else config.textSize
         set(value) {
-            config.textSize = value
+            if (textVertical) {
+                ensureVerticalLayout()
+                config.vTextSize = value
+            } else config.textSize = value
         }
 
     var letterSpacing: Float
-        get() = config.letterSpacing
+        get() = if (useVerticalLayout) config.vLetterSpacing else config.letterSpacing
         set(value) {
-            config.letterSpacing = value
+            if (textVertical) {
+                ensureVerticalLayout()
+                config.vLetterSpacing = value
+            } else config.letterSpacing = value
         }
 
     var lineSpacingExtra: Int
-        get() = config.lineSpacingExtra
+        get() = if (useVerticalLayout) config.vLineSpacingExtra else config.lineSpacingExtra
         set(value) {
-            config.lineSpacingExtra = value
+            if (textVertical) {
+                ensureVerticalLayout()
+                config.vLineSpacingExtra = value
+            } else config.lineSpacingExtra = value
         }
 
     var paragraphSpacing: Int
-        get() = config.paragraphSpacing
+        get() = if (useVerticalLayout) config.vParagraphSpacing else config.paragraphSpacing
         set(value) {
-            config.paragraphSpacing = value
+            if (textVertical) {
+                ensureVerticalLayout()
+                config.vParagraphSpacing = value
+            } else config.paragraphSpacing = value
         }
 
     var titleMode: Int
@@ -380,6 +409,14 @@ object ReadBookConfig {
         var letterSpacing: Float = 0.1f,//字间距
         var lineSpacingExtra: Int = 12,//行间距
         var paragraphSpacing: Int = 2,//段距
+        // 竖排专用布局：vLayoutCustom=false 时整体回退到横排同名值（老配置无缝兼容）；
+        // 一旦用户在竖排模式下调整过任一布局项，标记置 true，竖排改用这一整套独立值。
+        var vLayoutCustom: Boolean = false,
+        var vTextBold: Int = 0,
+        var vTextSize: Int = 20,
+        var vLetterSpacing: Float = 0.1f,
+        var vLineSpacingExtra: Int = 12,
+        var vParagraphSpacing: Int = 2,
         var titleMode: Int = 0,//标题居中
         var titleSize: Int = 0,
         var titleTopSpacing: Int = 0,

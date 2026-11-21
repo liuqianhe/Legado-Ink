@@ -32,12 +32,14 @@ class QuickTextConfigDialog : BaseDialogFragment(R.layout.dialog_quick_text) {
             it.decorView.setPadding(0, 0, 0, 0)
             val attr = it.attributes
             attr.dimAmount = 0.0f
-            attr.gravity = Gravity.BOTTOM
+            // 移到屏幕中间偏下一点，避免贴底遮住正文与底部菜单；左右留白
+            attr.gravity = Gravity.CENTER
+            val dm = resources.displayMetrics
+            attr.width = (dm.widthPixels * 0.9f).toInt()
+            attr.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            attr.y = (40 * dm.density).toInt() // 正中略微下移，观感更稳
             it.attributes = attr
-            it.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            it.setLayout(attr.width, attr.height)
         }
     }
 
@@ -59,6 +61,7 @@ class QuickTextConfigDialog : BaseDialogFragment(R.layout.dialog_quick_text) {
             androidx.core.content.ContextCompat.getColor(requireContext(), R.color.background)
         )
         dsbTextSize.valueFormat = { (it + 5).toString() }
+        dsbTextWeight.valueFormat = { it.toString() }
         dsbTextLetterSpacing.valueFormat = { ((it - 50) / 100f).toString() }
         dsbLineSize.valueFormat = { ((it - 10) / 10f).toString() }
         dsbParagraphSpacing.valueFormat = { (it / 10f).toString() }
@@ -67,6 +70,7 @@ class QuickTextConfigDialog : BaseDialogFragment(R.layout.dialog_quick_text) {
     private fun initData() = binding.run {
         ReadBookConfig.let {
             dsbTextSize.progress = it.textSize - 5
+            dsbTextWeight.progress = it.textBold.coerceIn(0, 10)
             dsbTextLetterSpacing.progress = (it.letterSpacing * 100).toInt() + 50
             dsbLineSize.progress = it.lineSpacingExtra
             dsbParagraphSpacing.progress = it.paragraphSpacing
@@ -76,6 +80,10 @@ class QuickTextConfigDialog : BaseDialogFragment(R.layout.dialog_quick_text) {
     private fun initEvent() = binding.run {
         dsbTextSize.onChanged = {
             ReadBookConfig.textSize = it + 5
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbTextWeight.onChanged = {
+            ReadBookConfig.textBold = it
             postEvent(EventBus.UP_CONFIG, true)
         }
         dsbTextLetterSpacing.onChanged = {

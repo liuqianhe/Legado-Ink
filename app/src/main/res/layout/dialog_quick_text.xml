@@ -6,20 +6,20 @@
     android:layout_height="wrap_content"
     android:background="@color/background"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingTop="12dp"
-    android:paddingRight="10dp"
-    android:paddingBottom="12dp">
+    android:paddingLeft="14dp"
+    android:paddingTop="14dp"
+    android:paddingRight="14dp"
+    android:paddingBottom="16dp">
 
     <TextView
         android:id="@+id/tv_quick_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="12dp"
-        android:paddingBottom="4dp"
+        android:gravity="center_horizontal"
+        android:paddingBottom="12dp"
         android:text="@string/ink_quick_text"
         android:textColor="@color/black"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <io.legado.app.ui.widget.DetailSeekBar
@@ -33,9 +33,21 @@
         app:title="@string/text_size" />
 
     <io.legado.app.ui.widget.DetailSeekBar
+        android:id="@+id/dsb_text_weight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:isBottomBackground="true"
+        app:max="10"
+        app:title="@string/ink_text_weight_short" />
+
+    <io.legado.app.ui.widget.DetailSeekBar
         android:id="@+id/dsb_text_letter_spacing"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         app:isBottomBackground="true"
@@ -46,6 +58,7 @@
         android:id="@+id/dsb_line_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         app:isBottomBackground="true"
@@ -56,6 +69,7 @@
         android:id="@+id/dsb_paragraph_spacing"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         app:isBottomBackground="true"

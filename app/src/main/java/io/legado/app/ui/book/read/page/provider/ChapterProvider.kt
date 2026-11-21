@@ -1,5 +1,6 @@
 package io.legado.app.ui.book.read.page.provider
 
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -448,6 +449,20 @@ object ChapterProvider {
     }
 
     /**
+     * 竖排标题里的半角数字/字母按全角字格测宽，避免「第144章」的数字挤成一团。
+     * 只作用于竖排 + 标题；横排与正文保持原有排版，避免影响已有布局。
+     */
+    private fun measureChar(char: String, textPaint: TextPaint, isTitle: Boolean): Float {
+        val w = StaticLayout.getDesiredWidth(char, textPaint)
+        if (!vertical || !isTitle || char.length != 1) return w
+        val c = char[0]
+        if (c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z') {
+            return maxOf(w, StaticLayout.getDesiredWidth("我", textPaint))
+        }
+        return w
+    }
+
+    /**
      * 有缩进,两端对齐
      */
     private fun addCharsToLineFirst(
@@ -502,7 +517,7 @@ object ChapterProvider {
         val d = (visibleWidth - desiredWidth) / gapCount
         var x = startX
         words.forEachIndexed { index, char ->
-            val cw = StaticLayout.getDesiredWidth(char, textPaint)
+            val cw = measureChar(char, textPaint, textLine.isTitle)
             val x1 = if (index != words.lastIndex) (x + cw + d) else (x + cw)
             if (srcList != null && char == srcReplaceChar) {
                 textLine.textChars.add(
@@ -540,7 +555,7 @@ object ChapterProvider {
     ) {
         var x = startX
         words.forEach { char ->
-            val cw = StaticLayout.getDesiredWidth(char, textPaint)
+            val cw = measureChar(char, textPaint, textLine.isTitle)
             val x1 = x + cw
             if (srcList != null && char == srcReplaceChar) {
                 textLine.textChars.add(
@@ -626,43 +641,38 @@ object ChapterProvider {
         } ?: Typeface.DEFAULT
     }
 
+    /**
+     * 字重 0~10 档：用描边宽度线性模拟，低版本(API19)也能逐档区分；
+     * 7 档及以上叠加 BOLD 字形，0 档在高版本用细体。标题比正文重 2 档。
+     */
     private fun getPaints(typeface: Typeface): Pair<TextPaint, TextPaint> {
-        // 字体统一处理
-        val bold = Typeface.create(typeface, Typeface.BOLD)
-        val normal = Typeface.create(typeface, Typeface.NORMAL)
-        val (titleFont, textFont) = when (ReadBookConfig.textBold) {
-            1 -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                    Pair(Typeface.create(typeface, 900, false), bold)
-                else
-                    Pair(bold, bold)
+        val weight = ReadBookConfig.textBold.coerceIn(0, 10)
+
+        fun build(sizeSp: Int, bias: Int): TextPaint {
+            val w = (weight + bias).coerceIn(0, 10)
+            val paint = TextPaint()
+            paint.color = ReadBookConfig.textColor
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                paint.letterSpacing = ReadBookConfig.letterSpacing
             }
-            2 -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                    Pair(normal, Typeface.create(typeface, 300, false))
-                else
-                    Pair(normal, normal)
+            val sizePx = sizeSp.sp.toFloat()
+            paint.textSize = sizePx
+            paint.isAntiAlias = true
+            paint.typeface = when {
+                w >= 7 -> Typeface.create(typeface, Typeface.BOLD)
+                w == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
+                    Typeface.create(typeface, 300, false)
+                else -> Typeface.create(typeface, Typeface.NORMAL)
             }
-            else -> Pair(bold, normal)
+            if (w > 0) {
+                paint.style = Paint.Style.FILL_AND_STROKE
+                paint.strokeWidth = w / 10f * sizePx * 0.11f
+            }
+            return paint
         }
 
-        //标题
-        val tPaint = TextPaint()
-        tPaint.color = ReadBookConfig.textColor
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tPaint.letterSpacing = ReadBookConfig.letterSpacing
-        }
-        tPaint.typeface = titleFont
-        tPaint.textSize = with(ReadBookConfig) { textSize + titleSize }.sp.toFloat()
-        tPaint.isAntiAlias = true
-        val cPaint = TextPaint()
-        cPaint.color = ReadBookConfig.textColor
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cPaint.letterSpacing = ReadBookConfig.letterSpacing
-        }
-        cPaint.typeface = textFont
-        cPaint.textSize = ReadBookConfig.textSize.sp.toFloat()
-        cPaint.isAntiAlias = true
+        val tPaint = build(with(ReadBookConfig) { textSize + titleSize }, 2)
+        val cPaint = build(ReadBookConfig.textSize, 0)
         return Pair(tPaint, cPaint)
     }
 

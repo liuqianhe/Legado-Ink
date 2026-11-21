@@ -150,75 +150,99 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="32dp"
-            android:paddingEnd="32dp">
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/search_content"
-                android:src="@drawable/ic_search"
-                android:tint="@color/primaryText"
-                android:tooltipText="@string/search_content"
-                app:backgroundTint="@color/background_menu"
-                app:elevation="2dp"
-                app:fabSize="mini"
-                app:pressedTranslationZ="2dp"
-                tools:ignore="UnusedAttribute" />
-
-            <!-- 翻页刷新：点按选档位，长按开关 -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabPageRefresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/ink_page_refresh"
-                android:src="@drawable/ic_page_refresh"
-                android:tint="@color/primaryText"
-                android:tooltipText="@string/ink_page_refresh"
-                app:backgroundTint="@color/background_menu"
-                app:elevation="2dp"
-                app:fabSize="mini"
-                app:pressedTranslationZ="2dp"
-                tools:ignore="UnusedAttribute" />
-
-            <!-- 字体：点按选字体，长按快捷排版悬浮窗 -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabQuickText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/ink_font_switch"
-                android:src="@drawable/ic_font_a"
-                android:tint="@color/primaryText"
-                android:tooltipText="@string/ink_font_switch"
-                app:backgroundTint="@color/background_menu"
-                app:elevation="2dp"
-                app:fabSize="mini"
-                app:pressedTranslationZ="2dp"
-                tools:ignore="UnusedAttribute" />
-
-            <Space
+            <!-- 四个悬浮按钮等权均分、X 轴中心对齐 -->
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabReplaceRule"
-                android:layout_width="wrap_content"
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="@string/search_content"
+                    android:src="@drawable/ic_search"
+                    android:tooltipText="@string/search_content"
+                    app:backgroundTint="@color/background_menu"
+                    app:elevation="2dp"
+                    app:fabSize="mini"
+                    app:pressedTranslationZ="2dp"
+                    tools:ignore="UnusedAttribute" />
+            </FrameLayout>
+
+            <!-- 翻页刷新：点按选档位，长按开关 -->
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/replace_rule_title"
-                android:src="@drawable/ic_find_replace"
-                android:tint="@color/primaryText"
-                android:tooltipText="@string/replace_rule_title"
-                app:backgroundTint="@color/background_menu"
-                app:elevation="2dp"
-                app:fabSize="mini"
-                app:pressedTranslationZ="2dp"
-                tools:ignore="UnusedAttribute" />
+                android:layout_weight="1">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabPageRefresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="@string/ink_page_refresh"
+                    android:src="@drawable/ic_page_refresh"
+                    android:tooltipText="@string/ink_page_refresh"
+                    app:backgroundTint="@color/background_menu"
+                    app:elevation="2dp"
+                    app:fabSize="mini"
+                    app:pressedTranslationZ="2dp"
+                    tools:ignore="UnusedAttribute" />
+            </FrameLayout>
+
+            <!-- 字体：点按选字体，长按快捷排版悬浮窗 -->
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabQuickText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="@string/ink_font_switch"
+                    android:src="@drawable/ic_font_a"
+                    android:tooltipText="@string/ink_font_switch"
+                    app:backgroundTint="@color/background_menu"
+                    app:elevation="2dp"
+                    app:fabSize="mini"
+                    app:pressedTranslationZ="2dp"
+                    tools:ignore="UnusedAttribute" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabReplaceRule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="@string/replace_rule_title"
+                    android:src="@drawable/ic_find_replace"
+                    android:tooltipText="@string/replace_rule_title"
+                    app:backgroundTint="@color/background_menu"
+                    app:elevation="2dp"
+                    app:fabSize="mini"
+                    app:pressedTranslationZ="2dp"
+                    tools:ignore="UnusedAttribute" />
+            </FrameLayout>
 
         </LinearLayout>
 

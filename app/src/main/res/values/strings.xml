@@ -672,6 +672,7 @@
     <string name="information">Information</string>
     <string name="switchLayout">Switch Layout</string>
     <string name="text_font_weight_converter">Text font weight switching</string>
+    <string name="ink_text_weight_short">Weight</string>
     <string name="full_screen_gestures_support">Full screen gestures support</string>
 
     <!--color-->
@@ -938,5 +939,6 @@
     <string name="ink_full_refresh">Full refresh</string>
     <string name="ink_font_switch">Font</string>
     <string name="ink_quick_text">Quick typesetting</string>
+    <string name="ink_text_weight_value">Weight %1$d</string>
 
 </resources>

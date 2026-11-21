@@ -1,30 +1,22 @@
 package io.legado.app.ui.book.read.config
 
 import android.content.Context
-import android.graphics.Color
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import io.legado.app.R
-import io.legado.app.help.AppConfig
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.lib.dialogs.alert
-import io.legado.app.lib.theme.accentColor
 import io.legado.app.ui.widget.text.StrokeTextView
 
-
+/**
+ * 字重切换：0~10 共 11 档，点击弹出选择器。
+ * 显示成「字重N」，N 越大越粗（0 最细、10 最粗）。
+ */
 class TextFontWeightConverter(context: Context, attrs: AttributeSet?) :
     StrokeTextView(context, attrs) {
 
-    private val spannableString = SpannableString("中/粗/细")
-    private var enabledSpan: ForegroundColorSpan = ForegroundColorSpan(
-        if (AppConfig.isEInkMode) Color.BLACK else context.accentColor
-    )
     private var onChanged: (() -> Unit)? = null
 
     init {
-        text = spannableString
         if (!isInEditMode) {
             upUi(ReadBookConfig.textBold)
         }
@@ -33,20 +25,14 @@ class TextFontWeightConverter(context: Context, attrs: AttributeSet?) :
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun upUi(type: Int) {
-        spannableString.removeSpan(enabledSpan)
-        when (type) {
-            0 -> spannableString.setSpan(enabledSpan, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-            1 -> spannableString.setSpan(enabledSpan, 2, 3, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-            2 -> spannableString.setSpan(enabledSpan, 4, 5, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-        }
-        text = spannableString
+        text = context.getString(R.string.ink_text_weight_value, type.coerceIn(0, 10))
     }
 
     private fun selectType() {
+        val levels = (0..10).map { it.toString() }
         context.alert(titleResource = R.string.text_font_weight_converter) {
-            items(context.resources.getStringArray(R.array.text_font_weight).toList()) { _, i ->
+            items(levels) { _, i ->
                 ReadBookConfig.textBold = i
                 upUi(i)
                 onChanged?.invoke()
