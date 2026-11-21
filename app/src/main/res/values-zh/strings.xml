@@ -921,4 +921,21 @@
     <string name="ink_underline_wavy">波浪线</string>
     <string name="ink_underline_config">下划线设置</string>
 
+    <!-- 竖排 / 翻页刷新 -->
+    <string name="ink_text_horizontal">横排</string>
+    <string name="ink_text_vertical">竖排</string>
+    <string name="ink_vertical_start_right">起点:右侧</string>
+    <string name="ink_vertical_start_left">起点:左侧</string>
+    <string name="ink_page_refresh">翻页刷新</string>
+    <string name="ink_off">关</string>
+    <string name="ink_page_refresh_off">翻页刷新:关</string>
+    <string name="ink_page_refresh_on">翻页刷新:每 %1$d 页</string>
+    <string name="ink_page_refresh_title">每翻 N 页全刷一次</string>
+    <string name="ink_page_refresh_custom">自定义…</string>
+    <string name="ink_page_refresh_custom_title">每多少页全刷一次</string>
+    <string name="ink_page_refresh_invalid">请输入 1~999 之间的数字</string>
+    <string name="ink_full_refresh">全刷</string>
+    <string name="ink_font_switch">字体</string>
+    <string name="ink_quick_text">快捷排版</string>
+
 </resources>

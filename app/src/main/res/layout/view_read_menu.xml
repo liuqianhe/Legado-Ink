@@ -168,6 +168,38 @@
                 app:pressedTranslationZ="2dp"
                 tools:ignore="UnusedAttribute" />
 
+            <!-- 翻页刷新：点按选档位，长按开关 -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabPageRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/ink_page_refresh"
+                android:src="@drawable/ic_page_refresh"
+                android:tint="@color/primaryText"
+                android:tooltipText="@string/ink_page_refresh"
+                app:backgroundTint="@color/background_menu"
+                app:elevation="2dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="2dp"
+                tools:ignore="UnusedAttribute" />
+
+            <!-- 字体：点按选字体，长按快捷排版悬浮窗 -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabQuickText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/ink_font_switch"
+                android:src="@drawable/ic_font_a"
+                android:tint="@color/primaryText"
+                android:tooltipText="@string/ink_font_switch"
+                app:backgroundTint="@color/background_menu"
+                app:elevation="2dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="2dp"
+                tools:ignore="UnusedAttribute" />
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

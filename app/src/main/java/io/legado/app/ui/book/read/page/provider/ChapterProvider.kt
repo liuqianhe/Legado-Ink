@@ -96,6 +96,11 @@ object ChapterProvider {
     var doublePage = false
         private set
 
+    /** 当前是否竖排（由 upLayout 与配置同步） */
+    @JvmStatic
+    var vertical = false
+        private set
+
     init {
         upStyle()
     }
@@ -675,21 +680,40 @@ object ChapterProvider {
 
     /**
      * 更新绘制尺寸
+     *
+     * 竖排说明：排版仍在「文字空间」里做（宽=屏幕高、高=屏幕宽），
+     * 上屏时整体旋转 90°。因此这里把宽高与页边距整体互换 90°，
+     * 横排的「行」到竖排就变成了「列」。
      */
     fun upLayout() {
-        doublePage = viewWidth > viewHeight && AppConfig.doublePageHorizontal
+        vertical = ReadBookConfig.textVertical
+        doublePage = !vertical && viewWidth > viewHeight && AppConfig.doublePageHorizontal
         if (viewWidth > 0 && viewHeight > 0) {
-            paddingLeft = ReadBookConfig.paddingLeft.dp
-            paddingTop = ReadBookConfig.paddingTop.dp
-            paddingRight = ReadBookConfig.paddingRight.dp
-            paddingBottom = ReadBookConfig.paddingBottom.dp
-            visibleWidth = if (doublePage) {
-                viewWidth / 2 - paddingLeft - paddingRight
+            if (vertical) {
+                // 文字空间 padLeft → 屏幕上边，padTop → 屏幕右边，
+                // padRight → 屏幕下边，padBottom → 屏幕左边
+                paddingLeft = ReadBookConfig.paddingTop.dp
+                paddingTop = ReadBookConfig.paddingRight.dp
+                paddingRight = ReadBookConfig.paddingBottom.dp
+                paddingBottom = ReadBookConfig.paddingLeft.dp
+                visibleWidth = viewHeight - paddingLeft - paddingRight
+                visibleHeight = viewWidth - paddingTop - paddingBottom
             } else {
-                viewWidth - paddingLeft - paddingRight
+                paddingLeft = ReadBookConfig.paddingLeft.dp
+                paddingTop = ReadBookConfig.paddingTop.dp
+                paddingRight = ReadBookConfig.paddingRight.dp
+                paddingBottom = ReadBookConfig.paddingBottom.dp
+                visibleWidth = if (doublePage) {
+                    viewWidth / 2 - paddingLeft - paddingRight
+                } else {
+                    viewWidth - paddingLeft - paddingRight
+                }
+                visibleHeight = viewHeight - paddingTop - paddingBottom
+                visibleRight = viewWidth - paddingRight
             }
-            visibleHeight = viewHeight - paddingTop - paddingBottom
-            visibleRight = viewWidth - paddingRight
+            if (vertical) {
+                visibleRight = paddingLeft + visibleWidth
+            }
             visibleBottom = paddingTop + visibleHeight
         }
     }

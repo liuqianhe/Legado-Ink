@@ -48,6 +48,9 @@ class SearchView @JvmOverloads constructor(
             // 改变字体
             textView!!.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             textView!!.gravity = Gravity.CENTER_VERTICAL
+            // 墨水屏：搜索框里的文字与提示恒为纯黑，别用主题里的半透明灰
+            textView!!.setTextColor(android.graphics.Color.BLACK)
+            textView!!.setHintTextColor(android.graphics.Color.BLACK)
         } catch (e: Exception) {
             Timber.e(e)
         }

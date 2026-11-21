@@ -5,9 +5,6 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import io.legado.app.R
 import io.legado.app.lib.theme.Selector
-import io.legado.app.lib.theme.ThemeStore
-import io.legado.app.lib.theme.bottomBackground
-import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.dp
 import io.legado.app.utils.getCompatColor
 
@@ -27,27 +24,20 @@ class AccentStrokeTextView(context: Context, attrs: AttributeSet) :
     }
 
     private fun upStyle() {
-        val isLight = ColorUtils.isColorLight(context.bottomBackground)
-        val disableColor = if (isBottomBackground) {
-            if (isLight) {
-                context.getCompatColor(R.color.md_light_disabled)
-            } else {
-                context.getCompatColor(R.color.md_dark_disabled)
-            }
-        } else {
-            context.getCompatColor(R.color.disabled)
-        }
+        // 墨水屏：描边按钮（如「反选」「删除」）文字与描边恒为纯黑，
+        // 不用主题里的 accent / disabled 半透明灰，否则看着像灰字。
+        val inkBlack = android.graphics.Color.BLACK
         background = Selector.shapeBuild()
             .setCornerRadius(radius)
             .setStrokeWidth(1.dp)
-            .setDisabledStrokeColor(disableColor)
-            .setDefaultStrokeColor(ThemeStore.accentColor(context))
+            .setDisabledStrokeColor(inkBlack)
+            .setDefaultStrokeColor(inkBlack)
             .setPressedBgColor(context.getCompatColor(R.color.transparent30))
             .create()
         setTextColor(
             Selector.colorBuild()
-                .setDefaultColor(ThemeStore.accentColor(context))
-                .setDisabledColor(disableColor)
+                .setDefaultColor(inkBlack)
+                .setDisabledColor(inkBlack)
                 .create()
         )
     }

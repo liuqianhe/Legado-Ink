@@ -3,6 +3,7 @@ package io.legado.app.ui.book.read.page
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
 import android.os.SystemClock
@@ -65,6 +66,15 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     var textPage: TextPage = TextPage()
         private set
 
+    //竖排：排版在「文字空间」里做，上屏时整体旋转 90°
+    private val pageMatrix = Matrix()
+    private val pageMatrixInverse = Matrix()
+    private var pageMatrixReady = false
+    private var matrixLeftStart = false
+    private val mapPoints = FloatArray(2)
+    private val mapPoints2 = FloatArray(8)
+    private val verticalMode get() = ReadBookConfig.textVertical
+
     //滚动参数
     private val pageFactory: TextPageFactory get() = callBack.pageFactory
     private var pageOffset = 0
@@ -84,6 +94,46 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         prepareTask = null
         renderingBitmap?.recycle()
         renderingBitmap = null
+    }
+
+    /**
+     * 竖排映射：文字空间 (tx, ty) → 视图坐标 (sx, sy)
+     *  右侧起点（默认）：sx = width - ty，sy = tx  —— 列自右向左，字自上而下
+     *  左侧起点        ：sx = ty，        sy = tx  —— 列自左向右，字自上而下
+     */
+    private fun upPageMatrix() {
+        if (!verticalMode) return
+        if (width <= 0 || height <= 0) return
+        val leftStart = ReadBookConfig.verticalStartLeft
+        if (pageMatrixReady && matrixLeftStart == leftStart) return
+        val w = width.toFloat()
+        pageMatrix.setValues(
+            floatArrayOf(
+                0f, if (leftStart) 1f else -1f, if (leftStart) 0f else w,
+                1f, 0f, 0f,
+                0f, 0f, 1f
+            )
+        )
+        pageMatrix.invert(pageMatrixInverse)
+        matrixLeftStart = leftStart
+        pageMatrixReady = true
+    }
+
+    /** 触摸/选区坐标换算：视图坐标 → 文字空间 */
+    private fun toTextPoint(x: Float, y: Float): Pair<Float, Float> {
+        upPageMatrix()
+        mapPoints[0] = x
+        mapPoints[1] = y
+        pageMatrixInverse.mapPoints(mapPoints)
+        return Pair(mapPoints[0], mapPoints[1])
+    }
+
+    private fun toViewPoint(x: Float, y: Float): Pair<Float, Float> {
+        upPageMatrix()
+        mapPoints[0] = x
+        mapPoints[1] = y
+        pageMatrix.mapPoints(mapPoints)
+        return Pair(mapPoints[0], mapPoints[1])
     }
 
     fun prepareAdjacentPage() {
@@ -121,7 +171,12 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         }
         if (lineIndex < page.textLines.size) {
             val pageCanvas = Canvas(bitmap)
-            pageCanvas.clipRect(visibleRect)
+            if (verticalMode) {
+                upPageMatrix()
+                pageCanvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
+            } else {
+                pageCanvas.clipRect(visibleRect)
+            }
             draw(pageCanvas, page.textLines[lineIndex], relativeOffset(0))
         }
         if (lineIndex + 1 < page.textLines.size) {
@@ -167,6 +222,7 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        pageMatrixReady = false
         ChapterProvider.upViewSize(w, h)
         upVisibleRect()
         textPage.format()
@@ -175,7 +231,14 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     override fun onDraw(canvas: Canvas) {
         val started = SystemClock.uptimeMillis()
         super.onDraw(canvas)
-        canvas.clipRect(visibleRect)
+        if (verticalMode) {
+            // 竖排：整页旋转后上屏，可见区域就是本 View 的边界
+            upPageMatrix()
+            canvas.save()
+            canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
+        } else {
+            canvas.clipRect(visibleRect)
+        }
         val bitmap = preparedBitmap
         if (!callBack.isScroll && bitmap != null && preparedPage === textPage &&
             bitmap.width == width && bitmap.height == height && isPlainText(textPage)) {
@@ -184,6 +247,7 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         } else {
             drawPage(canvas)
         }
+        if (verticalMode) canvas.restore()
         if (BuildConfig.DEBUG) {
             Log.d("PagePerf", "text-draw=${SystemClock.uptimeMillis() - started}ms page=${textPage.index} lines=${textPage.lineSize}")
         }
@@ -245,6 +309,10 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         isTitle: Boolean,
         isImageLine: Boolean
     ) {
+        if (verticalMode) {
+            drawCharsVertical(canvas, textChars, lineTop, lineBase, lineBottom, isTitle, isImageLine)
+            return
+        }
         val textPaint = if (isTitle) {
             ChapterProvider.titlePaint
         } else {
@@ -286,6 +354,117 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         // 正文线与对话线可在同一行共存，故错开 y 位置（正文偏上、对话偏下）。
         drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = false)
         drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = true)
+    }
+
+    /**
+     * 竖排绘制：
+     *  ① 跟随整页旋转的部件（选中底色、下划线、图片占位）在旋转坐标系里画，
+     *     下划线旋转后正好变成沿列方向的竖线；
+     *  ② 字形逐字「扶正」——把文字空间的字格中心映射到屏幕坐标，再用 Align.CENTER 画正字。
+     * 这样中文是标准的立排（字正、列竖），不是把整行文字转 90°。
+     */
+    private fun drawCharsVertical(
+        canvas: Canvas,
+        textChars: List<TextChar>,
+        lineTop: Float,
+        lineBase: Float,
+        lineBottom: Float,
+        isTitle: Boolean,
+        isImageLine: Boolean
+    ) {
+        val textPaint = if (isTitle) ChapterProvider.titlePaint else ChapterProvider.contentPaint
+        textPaint.color = ReadBookConfig.textColor
+        upPageMatrix()
+        val cellCenter = (lineTop + lineBottom) / 2f
+        // ① 旋转坐标系
+        canvas.save()
+        canvas.concat(pageMatrix)
+        textChars.forEach {
+            if (it.selected) canvas.drawRect(it.start, lineTop, it.end, lineBottom, selectedPaint)
+        }
+        drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = false)
+        drawUnderlineRuns(canvas, textChars, lineBase, lineBottom, textPaint.color, useDialogueField = true)
+        canvas.restore()
+        // ② 字形
+        val oldAlign = textPaint.textAlign
+        textPaint.textAlign = Paint.Align.CENTER
+        val fm = textPaint.fontMetrics
+        val baselineOffset = -(fm.ascent + fm.descent) / 2f
+        textChars.forEach { tc ->
+            if (tc.isImage) {
+                drawImageVertical(canvas, tc, lineTop, lineBottom)
+            } else {
+                mapPoints[0] = (tc.start + tc.end) / 2f
+                mapPoints[1] = cellCenter
+                pageMatrix.mapPoints(mapPoints)
+                canvas.drawText(
+                    tc.charData,
+                    mapPoints[0],
+                    mapPoints[1] + baselineOffset,
+                    textPaint
+                )
+            }
+        }
+        textPaint.textAlign = oldAlign
+    }
+
+    /**
+     * 竖排里的图片：字格旋转后是个竖长矩形，图片本身扶正后按比例放进这个矩形居中显示，
+     * 避免插画被转 90°。
+     */
+    private fun drawImageVertical(
+        canvas: Canvas,
+        textChar: TextChar,
+        lineTop: Float,
+        lineBottom: Float
+    ) {
+        val book = ReadBook.book ?: return
+        ImageProvider.getImage(
+            book,
+            textPage.chapterIndex,
+            textChar.charData,
+            ReadBook.bookSource,
+            true
+        )?.let { bmp ->
+            mapPoints[0] = textChar.start
+            mapPoints[1] = lineTop
+            mapPoints[2] = textChar.end
+            mapPoints[3] = lineTop
+            mapPoints[4] = textChar.end
+            mapPoints[5] = lineBottom
+            mapPoints[6] = textChar.start
+            mapPoints[7] = lineBottom
+            pageMatrix.mapPoints(mapPoints)
+            var left = mapPoints[0]
+            var right = mapPoints[0]
+            var top = mapPoints[1]
+            var bottom = mapPoints[1]
+            for (i in 1..3) {
+                val x = mapPoints[i * 2]
+                val y = mapPoints[i * 2 + 1]
+                if (x < left) left = x
+                if (x > right) right = x
+                if (y < top) top = y
+                if (y > bottom) bottom = y
+            }
+            val boxW = right - left
+            val boxH = bottom - top
+            if (boxW <= 0f || boxH <= 0f) return
+            val scale = minOf(boxW / bmp.width, boxH / bmp.height)
+            val w = bmp.width * scale
+            val h = bmp.height * scale
+            val dst = RectF(
+                left + (boxW - w) / 2f,
+                top + (boxH - h) / 2f,
+                left + (boxW + w) / 2f,
+                top + (boxH + h) / 2f
+            )
+            kotlin.runCatching {
+                canvas.drawBitmap(bmp, null, dst, null)
+            }.onFailure { e ->
+                context.toastOnUi(e.localizedMessage)
+            }
+        }
     }
 
     /**
@@ -481,7 +660,18 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
             textChar: TextChar
         ) -> Unit
     ) {
-        if (!visibleRect.contains(x, y)) return
+        // 竖排：触摸点先换算回文字空间（列=ty，字=tx）
+        var touchX = x
+        var touchY = y
+        if (verticalMode) {
+            val p = toTextPoint(x, y)
+            touchX = p.first
+            touchY = p.second
+            if (touchX < 0f || touchY < 0f ||
+                touchX > ChapterProvider.visibleRight ||
+                touchY > ChapterProvider.paddingTop + ChapterProvider.visibleHeight
+            ) return
+        } else if (!visibleRect.contains(touchX, touchY)) return
         var relativeOffset: Float
         for (relativePos in 0..2) {
             relativeOffset = relativeOffset(relativePos)
@@ -492,9 +682,9 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
             }
             val textPage = relativePage(relativePos)
             for ((lineIndex, textLine) in textPage.textLines.withIndex()) {
-                if (textLine.isTouch(y, relativeOffset)) {
+                if (textLine.isTouch(touchY, relativeOffset)) {
                     for ((charIndex, textChar) in textLine.textChars.withIndex()) {
-                        if (textChar.isTouch(x)) {
+                        if (textChar.isTouch(touchX)) {
                             touched.invoke(
                                 relativePos, textPage,
                                 relativeOffset,
@@ -578,11 +768,22 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     }
 
     private fun upSelectedStart(x: Float, y: Float, top: Float) = callBack.apply {
-        upSelectedStart(x, y + headerHeight, top + headerHeight)
+        if (verticalMode) {
+            val p = toViewPoint(x, y)
+            val p2 = toViewPoint(x, top)
+            upSelectedStart(p.first, p.second + headerHeight, p2.second + headerHeight)
+        } else {
+            upSelectedStart(x, y + headerHeight, top + headerHeight)
+        }
     }
 
     private fun upSelectedEnd(x: Float, y: Float) = callBack.apply {
-        upSelectedEnd(x, y + headerHeight)
+        if (verticalMode) {
+            val p = toViewPoint(x, y)
+            upSelectedEnd(p.first, p.second + headerHeight)
+        } else {
+            upSelectedEnd(x, y + headerHeight)
+        }
     }
 
     fun cancelSelect() {

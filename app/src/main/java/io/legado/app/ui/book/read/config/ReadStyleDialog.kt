@@ -14,6 +14,7 @@ import io.legado.app.help.ReadBookConfig
 import io.legado.app.lib.dialogs.selector
 import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.ui.book.read.ReadBookActivity
+import io.legado.app.ui.book.read.page.provider.ChapterProvider
 import io.legado.app.ui.widget.font.FontSelectDialog
 import io.legado.app.utils.*
 import io.legado.app.utils.viewbindingdelegate.viewBinding
@@ -98,6 +99,30 @@ class ReadStyleDialog : BaseDialogFragment(R.layout.dialog_read_book_style),
         tvThemeLayout.setOnClickListener {
             ThemeLayoutDialog().show(childFragmentManager, "themeLayoutDialog")
         }
+        // 横排 / 竖排
+        tvTextVertical.setOnClickListener {
+            val vertical = !ReadBookConfig.textVertical
+            ReadBookConfig.textVertical = vertical
+            // 竖排会改变排版尺寸（宽高互换），必须让 ChapterProvider 重算
+            ChapterProvider.upLayout()
+            upView()
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        // 竖排起点：右侧 / 左侧
+        tvVerticalStart.setOnClickListener {
+            if (!ReadBookConfig.textVertical) {
+                context?.toastOnUi(R.string.ink_vertical_start_right)
+                return@setOnClickListener
+            }
+            ReadBookConfig.verticalStartLeft = !ReadBookConfig.verticalStartLeft
+            upView()
+            postEvent(EventBus.UP_CONFIG, false)
+        }
+        // 翻页刷新
+        tvPageRefresh.setOnClickListener {
+            context?.let { PageRefreshConfig.showSelector(it) }
+            binding.root.postDelayed({ upView() }, 400L)
+        }
         dsbTextSize.onChanged = {
             ReadBookConfig.textSize = it + 5
             postEvent(EventBus.UP_CONFIG, true)
@@ -123,6 +148,16 @@ class ReadStyleDialog : BaseDialogFragment(R.layout.dialog_read_book_style),
             dsbTextLetterSpacing.progress = (it.letterSpacing * 100).toInt() + 50
             dsbLineSize.progress = it.lineSpacingExtra
             dsbParagraphSpacing.progress = it.paragraphSpacing
+            tvTextVertical.setText(
+                if (it.textVertical) R.string.ink_text_vertical else R.string.ink_text_horizontal
+            )
+            tvVerticalStart.setText(
+                if (it.verticalStartLeft) R.string.ink_vertical_start_left
+                else R.string.ink_vertical_start_right
+            )
+            tvVerticalStart.isEnabled = it.textVertical
+            tvVerticalStart.alpha = if (it.textVertical) 1f else 0.4f
+            tvPageRefresh.text = PageRefreshConfig.summary(requireContext())
         }
     }
 

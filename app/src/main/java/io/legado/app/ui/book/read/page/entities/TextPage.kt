@@ -35,6 +35,8 @@ data class TextPage(
 
     fun upLinesPosition() {
         if (!ReadBookConfig.textBottomJustify) return
+        // 竖排：这里调的是行间距（竖排里等于列间距），拉伸会破坏列对齐，直接跳过
+        if (ReadBookConfig.textVertical) return
         if (textLines.size <= 1) return
         if (leftLineSize == 0) {
             leftLineSize = lineSize

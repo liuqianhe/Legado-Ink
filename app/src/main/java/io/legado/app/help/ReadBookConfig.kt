@@ -140,6 +140,50 @@ object ReadBookConfig {
     var hideNavigationBar = appCtx.getPrefBoolean(PreferKey.hideNavigationBar)
     var useZhLayout = appCtx.getPrefBoolean(PreferKey.useZhLayout)
 
+    /**
+     * 竖排（直排）阅读。排版仍在「文字空间」里按横排规则做，
+     * 绘制时整体旋转 90° 上屏；字形逐字扶正，因此中文是正常的立排效果。
+     */
+    var textVertical: Boolean = appCtx.getPrefBoolean(PreferKey.inkTextVertical, false)
+        set(value) {
+            if (field != value) {
+                field = value
+                appCtx.putPrefBoolean(PreferKey.inkTextVertical, value)
+            }
+        }
+
+    /** 竖排起点：false=右侧（默认，自右向左分列），true=左侧（自左向右分列） */
+    var verticalStartLeft: Boolean = appCtx.getPrefBoolean(PreferKey.inkVerticalStartLeft, false)
+        set(value) {
+            if (field != value) {
+                field = value
+                appCtx.putPrefBoolean(PreferKey.inkVerticalStartLeft, value)
+            }
+        }
+
+    /**
+     * 翻页刷新：每翻 N 页做一次硬件 GC 清残影（0 = 关闭）。
+     * 只在本机（JDRead1 / onyx 框架，android.onyx.ViewUpdateHelper）有效。
+     */
+    var pageRefreshCount: Int = appCtx.getPrefInt(PreferKey.inkPageRefreshCount, 0)
+        set(value) {
+            val safe = value.coerceIn(0, 999)
+            if (field != safe) {
+                field = safe
+                appCtx.putPrefInt(PreferKey.inkPageRefreshCount, safe)
+            }
+        }
+
+    /** 上次启用的档位，长按开关时用来恢复 */
+    var pageRefreshLastCount: Int = appCtx.getPrefInt(PreferKey.inkPageRefreshLast, 10)
+        set(value) {
+            val safe = value.coerceIn(1, 999)
+            if (field != safe) {
+                field = safe
+                appCtx.putPrefInt(PreferKey.inkPageRefreshLast, safe)
+            }
+        }
+
     val config get() = durConfig
 
     var textFont: String

@@ -20,6 +20,7 @@ import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookProgress
 import io.legado.app.data.entities.BookSource
 import io.legado.app.help.IntentData
+import io.legado.app.help.EinkRefresh
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.help.ReadTipConfig
 import io.legado.app.help.coroutine.Coroutine
@@ -61,7 +62,8 @@ class ReadBookActivity : BaseReadBookActivity(),
     ReadMenu.CallBack,
     ChangeSourceDialog.CallBack,
     ReadBook.CallBack,
-    TocRegexDialog.CallBack {
+    TocRegexDialog.CallBack,
+    io.legado.app.ui.widget.font.FontSelectDialog.CallBack {
 
     private val tocActivity =
         registerForActivityResult(TocActivityResult()) {
@@ -108,6 +110,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     private var screenTimeOut: Long = 0
     private var timeBatteryReceiver: TimeBatteryReceiver? = null
     private var loadStates: Boolean = false
+    private var pagesSinceRefresh = 0
     override val pageFactory: TextPageFactory get() = binding.readView.pageFactory
     override val headerHeight: Int get() = binding.readView.curPage.headerHeight
 
@@ -642,6 +645,26 @@ class ReadBookActivity : BaseReadBookActivity(),
             binding.readMenu.setSeekPage(ReadBook.durPageIndex())
             startBackupJob()
         }
+        countForPageRefresh()
+    }
+
+    /**
+     * 翻页刷新：每翻 N 页做一次硬件 GC 清残影（本机 onyx 框架）。
+     * applyGCOnce() 是同步接口、会阻塞 400~600ms，必须放后台线程。
+     */
+    private fun countForPageRefresh() {
+        val count = ReadBookConfig.pageRefreshCount
+        if (count <= 0) {
+            pagesSinceRefresh = 0
+            return
+        }
+        pagesSinceRefresh++
+        if (pagesSinceRefresh < count) return
+        pagesSinceRefresh = 0
+        if (!EinkRefresh.available) return
+        Coroutine.async {
+            EinkRefresh.gcOnce()
+        }
     }
 
     override val oldBook: Book?
@@ -710,6 +733,30 @@ class ReadBookActivity : BaseReadBookActivity(),
      */
     override fun showMoreSetting() {
         showDialogFragment<MoreConfigDialog>()
+    }
+
+    /**
+     * 字体切换（阅读菜单里的「A」按钮点按）
+     */
+    override fun showFontSelect() {
+        showDialogFragment<io.legado.app.ui.widget.font.FontSelectDialog>()
+    }
+
+    /**
+     * 快捷排版悬浮窗（阅读菜单里的「A」按钮长按）
+     */
+    override fun showQuickTextConfig() {
+        showDialogFragment<QuickTextConfigDialog>()
+    }
+
+    override val curFontPath: String
+        get() = ReadBookConfig.textFont
+
+    override fun selectFont(path: String) {
+        if (path != ReadBookConfig.textFont) {
+            ReadBookConfig.textFont = path
+            postEvent(EventBus.UP_CONFIG, true)
+        }
     }
 
     /**

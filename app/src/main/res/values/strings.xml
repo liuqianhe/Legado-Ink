@@ -922,4 +922,21 @@
     <string name="ink_underline_wavy">Wavy</string>
     <string name="ink_underline_config">Underline settings</string>
 
+    <!-- 竖排 / 翻页刷新 -->
+    <string name="ink_text_horizontal">Horizontal</string>
+    <string name="ink_text_vertical">Vertical</string>
+    <string name="ink_vertical_start_right">Start: right</string>
+    <string name="ink_vertical_start_left">Start: left</string>
+    <string name="ink_page_refresh">Page refresh</string>
+    <string name="ink_off">Off</string>
+    <string name="ink_page_refresh_off">Page refresh: off</string>
+    <string name="ink_page_refresh_on">Page refresh: every %1$d</string>
+    <string name="ink_page_refresh_title">Full refresh every N pages</string>
+    <string name="ink_page_refresh_custom">Custom…</string>
+    <string name="ink_page_refresh_custom_title">Pages per full refresh</string>
+    <string name="ink_page_refresh_invalid">Enter a number between 1 and 999</string>
+    <string name="ink_full_refresh">Full refresh</string>
+    <string name="ink_font_switch">Font</string>
+    <string name="ink_quick_text">Quick typesetting</string>
+
 </resources>

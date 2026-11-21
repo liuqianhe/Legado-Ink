@@ -23,6 +23,7 @@ import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.theme.*
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.info.BookInfoActivity
+import io.legado.app.ui.book.read.config.PageRefreshConfig
 import io.legado.app.ui.browser.WebViewActivity
 import io.legado.app.ui.widget.seekbar.SeekBarChangeListener
 import io.legado.app.utils.*
@@ -77,6 +78,10 @@ class ReadMenu @JvmOverloads constructor(
         llBottomBg.setBackgroundColor(bgColor)
         fabSearch.backgroundTintList = bottomBackgroundList
         fabSearch.setColorFilter(textColor)
+        fabPageRefresh.backgroundTintList = bottomBackgroundList
+        fabPageRefresh.setColorFilter(textColor)
+        fabQuickText.backgroundTintList = bottomBackgroundList
+        fabQuickText.setColorFilter(textColor)
         fabReplaceRule.backgroundTintList = bottomBackgroundList
         fabReplaceRule.setColorFilter(textColor)
         tvPre.setTextColor(textColor)
@@ -251,6 +256,26 @@ class ReadMenu @JvmOverloads constructor(
         //替换
         fabReplaceRule.setOnClickListener { callBack.openReplaceRule() }
 
+        //翻页刷新：点按选档位，长按开关
+        fabPageRefresh.setOnClickListener {
+            PageRefreshConfig.showSelector(context)
+        }
+        fabPageRefresh.setOnLongClickListener {
+            PageRefreshConfig.toggle(context)
+            true
+        }
+
+        //字体：点按选字体，长按快捷排版
+        fabQuickText.setOnClickListener {
+            runMenuOut {
+                callBack.showFontSelect()
+            }
+        }
+        fabQuickText.setOnLongClickListener {
+            callBack.showQuickTextConfig()
+            true
+        }
+
         //上一章
         tvPre.setOnClickListener { ReadBook.moveToPrevChapter(upContent = true, toLast = false) }
 
@@ -311,6 +336,8 @@ class ReadMenu @JvmOverloads constructor(
         fun openSourceEditActivity()
         fun showReadStyle()
         fun showMoreSetting()
+        fun showFontSelect()
+        fun showQuickTextConfig()
         fun upSystemUiVisibility()
         fun showLogin()
         fun payAction()

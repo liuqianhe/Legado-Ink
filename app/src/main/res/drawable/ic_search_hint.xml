@@ -1,8 +1,19 @@
-<vector android:height="8dp"
-    android:viewportHeight="1024"
-    android:viewportWidth="1024"
-    android:width="8dp"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#FF000000" android:pathData="M462.43,894.32c-242.22,0 -439.3,-197.03 -439.3,-439.3S220.16,15.78 462.43,15.78s439.3,197.03 439.3,439.3 -197.07,439.25 -439.3,439.25zM462.43,62.32c-216.58,0 -392.75,176.17 -392.75,392.75s176.17,392.75 392.75,392.75c216.53,0 392.75,-176.17 392.75,-392.75s-176.22,-392.75 -392.75,-392.75z"/>
-    <path android:fillColor="#FF000000" android:pathData="M977.64,991.98a23.37,23.37 0,0 1,-16.48 -6.8l-211.22,-211.22a23.27,23.27 0,0 1,32.91 -32.91l211.22,211.22a23.27,23.27 0,0 1,-16.43 39.7z"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 墨水屏：搜索栏前缀图标。用矢量描边画粗一点，
+     原来 8dp 的细线放大到 hint 尺寸会被抗锯齿拉成灰色。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M10.4,3.4 A7,7 0 1,0 10.4,17.4 A7,7 0 1,0 10.4,3.4 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2.2" />
+    <path
+        android:pathData="M15.6,15.6 L20.6,20.6"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round" />
 </vector>
