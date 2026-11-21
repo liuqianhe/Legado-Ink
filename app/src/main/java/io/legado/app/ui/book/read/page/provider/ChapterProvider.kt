@@ -206,11 +206,14 @@ object ChapterProvider {
     }
 
     /**
-     * 墨水屏下划线打标（规则式，对齐海信版）：
+     * 墨水屏下划线打标（规则式）：
      *  - 全局下划线：正文每一行（排除标题/图片行）整行打标，与正文/对话互斥
-     *  - 正文下划线 + 对话下划线：可共存，逐行用预制对话正则识别，
-     *    命中的字符打 dialogueUnderlineKind，其余打 underlineKind
-     * 坐标系直接用 textChars 索引，保证与绘制完全一致。
+     *  - 正文下划线 + 对话下划线：可共存，用预制对话正则识别
+     *
+     * 关键修复：对话正则必须作用在整个章节的正文流上，而不是逐视觉行。
+     * 排版会把一句对话拆成多页/多行，逐行匹配时只有引号恰好落在同一行的
+     * 短对话才会命中；把整章正文按顺序铺平后再匹配，跨行对话也能识别。
+     * 坐标系直接用 textChars 引用，保证与绘制完全一致。
      */
     private fun applyUnderlines(book: Book, chapterIndex: Int, textPages: List<TextPage>) {
         val cfg = UnderlineStore.getConfig()
@@ -219,49 +222,45 @@ object ChapterProvider {
         val bodyOn = cfg.bodyKind != UnderlineStore.Kind.NONE.value
         val dialogueOn = cfg.dialogueKind != UnderlineStore.Kind.NONE.value
 
+        if (globalOn) {
+            textPages.forEach { page ->
+                page.textLines.forEach { line ->
+                    if (line.isTitle || line.isImage) return@forEach
+                    val chars = line.textChars
+                    val indentCount = leadingIndentCount(chars)
+                    chars.forEachIndexed { ci, tc ->
+                        if (!tc.isImage && ci >= indentCount) tc.underlineKind = cfg.globalKind
+                    }
+                }
+            }
+            return
+        }
+        if (!bodyOn && !dialogueOn) return
+
+        // 把整章正文字符按阅读顺序铺平；每行的行首缩进是排版占位，不参与识别。
+        val flatChars = mutableListOf<io.legado.app.ui.book.read.page.entities.TextChar>()
         textPages.forEach { page ->
             page.textLines.forEach { line ->
                 if (line.isTitle || line.isImage) return@forEach
                 val chars = line.textChars
-                // 段首排版会在 textChars 开头插入 paragraphIndent（默认两个全角空格）作为缩进，
-                // 这些是排版占位而非正文，不应被下划线覆盖。计算行首缩进字符数并在打标时跳过。
                 val indentCount = leadingIndentCount(chars)
-                if (globalOn) {
-                    // 全局：整行（每个非图片字符）都画同一线型，但跳过行首缩进空白
-                    chars.forEachIndexed { ci, tc ->
-                        if (!tc.isImage && ci >= indentCount) tc.underlineKind = cfg.globalKind
-                    }
-                    return@forEach
-                }
-                if (!bodyOn && !dialogueOn) return@forEach
-
-                // 用 charData 拼行文本，并记录 sb 索引 -> chars 索引，保证正则命中位置精确对齐。
-                // 同样跳过行首缩进空白，避免正文下划线从缩进处开始画。
-                val sb = StringBuilder()
-                val indexMap = mutableListOf<Int>()
                 chars.forEachIndexed { ci, tc ->
-                    if (!tc.isImage && ci >= indentCount) {
-                        indexMap.add(ci)
-                        sb.append(tc.charData)
-                    }
+                    if (!tc.isImage && ci >= indentCount) flatChars.add(tc)
                 }
-                if (sb.isEmpty()) return@forEach
-                val lineText = sb.toString()
+            }
+        }
+        if (flatChars.isEmpty()) return
+        val chapterText = buildString(flatChars.size) { flatChars.forEach { append(it.charData) } }
 
-                val dialogueRanges = if (dialogueOn) DialogueRange.findRanges(lineText) else emptyList()
-                val bodyRanges = if (bodyOn) {
-                    DialogueRange.findBodyRanges(lineText, dialogueRanges)
-                } else emptyList()
+        val dialogueRanges = if (dialogueOn) DialogueRange.findRanges(chapterText) else emptyList()
+        val bodyRanges = if (bodyOn) {
+            DialogueRange.findBodyRanges(chapterText, dialogueRanges)
+        } else emptyList()
 
-                indexMap.forEachIndexed { sbIndex, ci ->
-                    val tc = chars[ci]
-                    when {
-                        dialogueRanges.any { sbIndex in it } ->
-                            tc.dialogueUnderlineKind = cfg.dialogueKind
-                        bodyRanges.any { sbIndex in it } ->
-                            tc.underlineKind = cfg.bodyKind
-                    }
-                }
+        flatChars.forEachIndexed { index, tc ->
+            when {
+                dialogueRanges.any { index in it } -> tc.dialogueUnderlineKind = cfg.dialogueKind
+                bodyRanges.any { index in it } -> tc.underlineKind = cfg.bodyKind
             }
         }
     }

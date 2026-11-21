@@ -14,6 +14,7 @@ import io.legado.app.constant.EventBus
 import io.legado.app.constant.PreferKey
 import io.legado.app.data.entities.Book
 import io.legado.app.databinding.DialogBookshelfConfigBinding
+import io.legado.app.databinding.DialogBookshelfTitleBinding
 import io.legado.app.databinding.DialogEditTextBinding
 import io.legado.app.help.AppConfig
 import io.legado.app.help.DirectLinkUpload
@@ -103,6 +104,7 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
             R.id.menu_arrange_bookshelf -> startActivity<ArrangeBookActivity> {
                 putExtra("groupId", groupId)
             }
+            R.id.menu_bookshelf_title -> configBookshelfTitle()
             R.id.menu_download -> startActivity<CacheActivity> {
                 putExtra("groupId", groupId)
             }
@@ -179,6 +181,38 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
         }
     }
 
+
+    @SuppressLint("InflateParams")
+    fun configBookshelfTitle() {
+        alert(titleResource = R.string.bookshelf_title) {
+            val sizePref = getPrefInt(PreferKey.bookshelfTitleSize)
+            val boldPref = getPrefBoolean(PreferKey.bookshelfTitleBold)
+            val alertBinding = DialogBookshelfTitleBinding.inflate(layoutInflater).apply {
+                dsbBookshelfTitleSize.max = 12
+                dsbBookshelfTitleSize.progress = if (sizePref in 10..22) sizePref - 10 else 0
+                dsbBookshelfTitleSize.valueFormat = { progress ->
+                    if (progress == 0) getString(R.string.bookshelf_title_size_default)
+                    else "${progress + 10}sp"
+                }
+                dsbBookshelfTitleSize.refreshValue()
+                rgBookshelfTitleWeight.check(
+                    if (boldPref) R.id.rb_bookshelf_title_bold else R.id.rb_bookshelf_title_normal
+                )
+            }
+            customView { alertBinding.root }
+            okButton {
+                val progress = alertBinding.dsbBookshelfTitleSize.progress
+                val newSize = if (progress == 0) 0 else progress + 10
+                val newBold = alertBinding.rbBookshelfTitleBold.isChecked
+                if (sizePref != newSize || boldPref != newBold) {
+                    putPrefInt(PreferKey.bookshelfTitleSize, newSize)
+                    putPrefBoolean(PreferKey.bookshelfTitleBold, newBold)
+                    postEvent(EventBus.BOOKSHELF_REFRESH, "")
+                }
+            }
+            noButton()
+        }
+    }
 
     private fun importBookshelfAlert(groupId: Long) {
         alert(titleResource = R.string.import_bookshelf) {

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.constant.BookType
+import io.legado.app.ui.main.bookshelf.upBookshelfTitleStyle
 import io.legado.app.data.entities.Book
 import io.legado.app.databinding.ItemBookshelfGridBinding
 import io.legado.app.help.AppConfig
@@ -27,12 +28,16 @@ class BooksAdapterGrid(context: Context, private val callBack: CallBack) :
         val bundle = payloads.getOrNull(0) as? Bundle
         if (bundle == null) {
             tvName.text = item.name
+            tvName.upBookshelfTitleStyle()
             ivCover.load(item.getDisplayCover(), item.name, item.author)
             upRefresh(binding, item)
         } else {
             bundle.keySet().forEach {
                 when (it) {
-                    "name" -> tvName.text = item.name
+                    "name" -> {
+                        tvName.text = item.name
+                        tvName.upBookshelfTitleStyle()
+                    }
                     "cover" -> ivCover.load(item.getDisplayCover(), item.name, item.author)
                     "refresh" -> upRefresh(binding, item)
                 }

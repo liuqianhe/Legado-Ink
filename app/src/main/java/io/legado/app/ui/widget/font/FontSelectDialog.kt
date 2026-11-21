@@ -97,7 +97,7 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
         if (fontPath.isNullOrEmpty()) {
             openFolder()
         } else {
-            navigateToRoot(fontPath)
+            navigateToSaved(fontPath)
         }
     }
 
@@ -130,8 +130,63 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
         }
     }
 
+    /**
+     * 打开时优先回到上次浏览的子目录（例如 Fonts/新），
+     * 该目录失效或已不在当前字体根目录内时回退到根目录。
+     */
+    private fun navigateToSaved(rootPath: String) {
+        val last = getPrefString(PreferKey.fontLastDir)
+        if (!last.isNullOrBlank() && last != rootPath &&
+            last.startsWith(rootPath) && dirExists(last)
+        ) {
+            dirStack.clear()
+            dirStack.addLast(Uri.parse(rootPath) to getString(R.string.select_font))
+            currentDirUri = Uri.parse(last)
+            currentDirName = displayDirName(last)
+            if (last.isContentScheme()) {
+                val doc = DocumentFile.fromTreeUri(requireContext(), Uri.parse(last))
+                if (doc?.canRead() == true) {
+                    loadCurrentDir()
+                } else {
+                    navigateToRoot(rootPath)
+                }
+            } else {
+                loadFontFilesByPermission()
+            }
+        } else {
+            navigateToRoot(rootPath)
+        }
+    }
+
+    private fun dirExists(path: String): Boolean = try {
+        if (path.isContentScheme()) {
+            DocumentFile.fromSingleUri(requireContext(), Uri.parse(path))?.isDirectory == true
+        } else {
+            File(path).isDirectory
+        }
+    } catch (e: Exception) {
+        false
+    }
+
+    private fun displayDirName(path: String): String = try {
+        if (path.isContentScheme()) {
+            DocumentFile.fromSingleUri(requireContext(), Uri.parse(path))?.name
+                ?: path.substringAfterLast('/')
+        } else {
+            File(path).name
+        }
+    } catch (e: Exception) {
+        path.substringAfterLast('/')
+    }
+
+    /** 记住当前目录，下次打开字体选择器时直接进入 */
+    private fun rememberCurrentDir() {
+        currentDirUri?.let { putPrefString(PreferKey.fontLastDir, it.toString()) }
+    }
+
     /** 进入用户选定的字体根目录，清空导航栈 */
     private fun navigateToRoot(fontPath: String) {
+        putPrefString(PreferKey.fontLastDir, fontPath)
         dirStack.clear()
         currentDirUri = Uri.parse(fontPath)
         currentDirName = getString(R.string.select_font)
@@ -237,6 +292,7 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
         currentDirUri?.let { dirStack.addLast(it to currentDirName) }
         currentDirUri = doc.uri
         currentDirName = doc.name
+        rememberCurrentDir()
         loadCurrentDir()
     }
 
@@ -246,6 +302,7 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
             val (uri, name) = dirStack.removeLast()
             currentDirUri = uri
             currentDirName = name
+            rememberCurrentDir()
             loadCurrentDir()
         } else {
             dismissAllowingStateLoss()
@@ -258,7 +315,8 @@ class FontSelectDialog : BaseDialogFragment(R.layout.dialog_font_select),
             enterDir(docItem)
             return
         }
-        // 字体项：应用
+        // 字体项：记住所在目录后应用
+        rememberCurrentDir()
         execute {
             FileUtils.deleteFile(fontFolder.absolutePath)
             callBack?.selectFont(docItem.uri.toString())

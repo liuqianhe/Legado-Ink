@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <io.legado.app.ui.widget.DetailSeekBar
+        android:id="@+id/dsb_bookshelf_title_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:max="12"
+        app:title="@string/bookshelf_title_size" />
+
+    <RadioGroup
+        android:id="@+id/rg_bookshelf_title_weight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/rb_bookshelf_title_normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bookshelf_title_weight_normal"
+            android:textColor="@color/black"
+            app:buttonTint="@color/black" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/rb_bookshelf_title_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/bookshelf_title_weight_bold"
+            android:textColor="@color/black"
+            app:buttonTint="@color/black" />
+
+    </RadioGroup>
+
+</LinearLayout>

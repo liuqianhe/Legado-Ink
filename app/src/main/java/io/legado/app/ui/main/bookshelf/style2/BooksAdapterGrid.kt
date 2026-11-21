@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.constant.BookType
+import io.legado.app.ui.main.bookshelf.upBookshelfTitleStyle
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.ItemBookshelfGridBinding
@@ -61,6 +62,7 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
         binding.run {
             val item = callBack.getItem(position) as BookGroup
             tvName.text = item.groupName
+            tvName.upBookshelfTitleStyle()
             ivCover.load(item.cover)
         }
     }
@@ -70,7 +72,10 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
             val item = callBack.getItem(position) as Book
             bundle.keySet().forEach {
                 when (it) {
-                    "name" -> tvName.text = item.name
+                    "name" -> {
+                        tvName.text = item.name
+                        tvName.upBookshelfTitleStyle()
+                    }
                     "cover" -> ivCover.load(item.getDisplayCover(), item.name, item.author)
                     "refresh" -> upRefresh(this, item)
                 }
@@ -90,6 +95,7 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
             val item = callBack.getItem(position)
             if (item is BookGroup) {
                 tvName.text = item.groupName
+                tvName.upBookshelfTitleStyle()
                 ivCover.load(item.cover)
             }
             root.setOnClickListener {
@@ -106,6 +112,7 @@ class BooksAdapterGrid(context: Context, callBack: CallBack) :
             val item = callBack.getItem(position)
             if (item is Book) {
                 tvName.text = item.name
+                tvName.upBookshelfTitleStyle()
                 ivCover.load(item.getDisplayCover(), item.name, item.author)
                 upRefresh(this, item)
             }

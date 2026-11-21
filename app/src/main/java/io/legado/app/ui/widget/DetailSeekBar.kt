@@ -62,6 +62,8 @@ class DetailSeekBar @JvmOverloads constructor(
         binding.seekBar.setOnSeekBarChangeListener(this)
     }
 
+    fun refreshValue() = upValue()
+
     private fun upValue(progress: Int = binding.seekBar.progress) {
         valueFormat?.let {
             binding.tvSeekValue.text = it.invoke(progress)

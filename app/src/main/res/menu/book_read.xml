@@ -60,6 +60,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_overwrite_cloud_progress"
+        android:title="@string/overwrite_cloud_progress"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_reverse_content"
         android:title="@string/reverse_content"
         app:showAsAction="never" />

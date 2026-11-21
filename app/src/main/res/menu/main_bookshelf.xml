@@ -53,6 +53,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_bookshelf_title"
+        android:icon="@drawable/ic_interface_setting"
+        android:title="@string/bookshelf_title"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_export_bookshelf"
         android:icon="@drawable/ic_export"
         android:title="@string/export_bookshelf"

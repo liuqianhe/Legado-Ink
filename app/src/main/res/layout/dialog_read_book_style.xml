@@ -127,6 +127,12 @@
             app:isBottomBackground="true"
             app:radius="3dp" />
 
+        <!-- 墨水屏：与前一个按钮保持与其它按钮一致的间距 -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <io.legado.app.ui.widget.text.StrokeTextView
             android:id="@+id/tv_theme_layout"
             android:layout_width="wrap_content"

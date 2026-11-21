@@ -50,7 +50,20 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         dsbHeaderFontSize.progress = ReadBookConfig.headerFontSize - ReadBookConfig.minTipFontSize
         dsbFooterFontSize.progress = ReadBookConfig.footerFontSize - ReadBookConfig.minTipFontSize
 
+        // 墨水屏：页眉/页脚分割线开关与粗细
+        tvHeaderLine.text = dividerText(ReadBookConfig.showHeaderLine)
+        tvFooterLine.text = dividerText(ReadBookConfig.showFooterLine)
+        dsbHeaderLineSize.valueFormat = { (it + ReadBookConfig.minDividerSize).toString() }
+        dsbFooterLineSize.valueFormat = { (it + ReadBookConfig.minDividerSize).toString() }
+        dsbHeaderLineSize.progress =
+            ReadBookConfig.headerLineSize - ReadBookConfig.minDividerSize
+        dsbFooterLineSize.progress =
+            ReadBookConfig.footerLineSize - ReadBookConfig.minDividerSize
+
     }
+
+    private fun dividerText(show: Boolean): String =
+        getString(if (show) R.string.show else R.string.hide)
 
     private fun initEvent() = binding.run {
         rgTitleMode.setOnCheckedChangeListener { _, checkedId ->
@@ -76,6 +89,29 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         dsbFooterFontSize.onChanged = {
             ReadBookConfig.footerFontSize = it + ReadBookConfig.minTipFontSize
             postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbHeaderLineSize.onChanged = {
+            ReadBookConfig.headerLineSize = it + ReadBookConfig.minDividerSize
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbFooterLineSize.onChanged = {
+            ReadBookConfig.footerLineSize = it + ReadBookConfig.minDividerSize
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        val dividerChoices = listOf(getString(R.string.show), getString(R.string.hide))
+        llHeaderLine.setOnClickListener {
+            context?.selector(items = dividerChoices) { _, i ->
+                ReadBookConfig.showHeaderLine = i == 0
+                tvHeaderLine.text = dividerText(ReadBookConfig.showHeaderLine)
+                postEvent(EventBus.UP_CONFIG, true)
+            }
+        }
+        llFooterLine.setOnClickListener {
+            context?.selector(items = dividerChoices) { _, i ->
+                ReadBookConfig.showFooterLine = i == 0
+                tvFooterLine.text = dividerText(ReadBookConfig.showFooterLine)
+                postEvent(EventBus.UP_CONFIG, true)
+            }
         }
         llHeaderShow.setOnClickListener {
             val headerModes = ReadTipConfig.getHeaderModes(requireContext())

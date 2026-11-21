@@ -284,7 +284,7 @@ object ReadBookConfig {
             config.showFooterLine = value
         }
 
-    // ===== 页眉/页脚字号（对齐海信 io.legado.app.release 的 headerFontSize/footerFontSize）=====
+    // ===== 页眉/页脚字号（独立配置的 headerFontSize / footerFontSize）=====
     // 限制范围，避免字号过大导致页眉页脚遮住正文
     const val minTipFontSize = 6
     const val maxTipFontSize = 24
@@ -299,6 +299,22 @@ object ReadBookConfig {
         get() = config.footerFontSize.coerceIn(minTipFontSize, maxTipFontSize)
         set(value) {
             config.footerFontSize = value.coerceIn(minTipFontSize, maxTipFontSize)
+        }
+
+    // ===== 页眉/页脚分割线粗细（dp），1~8dp =====
+    const val minDividerSize = 1
+    const val maxDividerSize = 8
+
+    var headerLineSize: Int
+        get() = config.headerLineSize.coerceIn(minDividerSize, maxDividerSize)
+        set(value) {
+            config.headerLineSize = value.coerceIn(minDividerSize, maxDividerSize)
+        }
+
+    var footerLineSize: Int
+        get() = config.footerLineSize.coerceIn(minDividerSize, maxDividerSize)
+        set(value) {
+            config.footerLineSize = value.coerceIn(minDividerSize, maxDividerSize)
         }
 
     @Keep
@@ -334,6 +350,8 @@ object ReadBookConfig {
         var showFooterLine: Boolean = false,
         var headerFontSize: Int = 12,
         var footerFontSize: Int = 12,
+        var headerLineSize: Int = 1,
+        var footerLineSize: Int = 1,
         var tipHeaderLeft: Int = ReadTipConfig.time,
         var tipHeaderMiddle: Int = ReadTipConfig.none,
         var tipHeaderRight: Int = ReadTipConfig.battery,

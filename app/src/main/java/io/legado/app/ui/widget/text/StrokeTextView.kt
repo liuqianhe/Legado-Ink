@@ -1,9 +1,11 @@
 package io.legado.app.ui.widget.text
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import io.legado.app.R
+import io.legado.app.help.AppConfig
 import io.legado.app.lib.theme.*
 import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.dp
@@ -31,6 +33,28 @@ open class StrokeTextView(context: Context, attrs: AttributeSet?) :
     }
 
     private fun upBackground() {
+        // 墨水屏：所有描边按钮统一纯黑、加粗描边；选中态也保持纯黑，
+        // 避免主题 accent 让按钮看起来发灰/发青。
+        if (AppConfig.isEInkMode) {
+            val inkBlack = Color.BLACK
+            val stroke = if (isInEditMode) 1.dp else 2.dp
+            background = Selector.shapeBuild()
+                .setCornerRadius(radius)
+                .setStrokeWidth(stroke)
+                .setDisabledStrokeColor(inkBlack)
+                .setDefaultStrokeColor(inkBlack)
+                .setSelectedStrokeColor(inkBlack)
+                .setPressedBgColor(context.getCompatColor(R.color.transparent30))
+                .create()
+            setTextColor(
+                Selector.colorBuild()
+                    .setDefaultColor(inkBlack)
+                    .setSelectedColor(inkBlack)
+                    .setDisabledColor(inkBlack)
+                    .create()
+            )
+            return
+        }
         when {
             isInEditMode -> {
                 background = Selector.shapeBuild()

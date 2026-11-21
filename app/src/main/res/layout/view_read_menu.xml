@@ -117,9 +117,10 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_margin="8dp"
-            android:contentDescription="@string/brightness_auto"
-            android:src="@drawable/ic_brightness_auto"
-            tools:ignore="ImageContrastCheck" />
+                        android:contentDescription="@string/brightness_auto"
+                        android:src="@drawable/ic_brightness_auto"
+                        app:tint="@color/black"
+                        tools:ignore="ImageContrastCheck" />
 
         <io.legado.app.ui.widget.seekbar.VerticalSeekBarWrapper
             android:layout_width="wrap_content"
@@ -232,7 +233,7 @@
                         android:paddingBottom="10dp"
                         android:text="@string/previous_chapter"
                         android:textColor="@color/primaryText"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         tools:ignore="TouchTargetSizeCheck" />
 
                     <io.legado.app.lib.theme.view.ThemeSeekBar
@@ -255,7 +256,7 @@
                         android:paddingBottom="10dp"
                         android:text="@string/next_chapter"
                         android:textColor="@color/primaryText"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         tools:ignore="TouchTargetSizeCheck" />
                 </LinearLayout>
 
@@ -275,8 +276,8 @@
                     <!--目录按钮-->
                     <LinearLayout
                         android:id="@+id/ll_catalog"
-                        android:layout_width="60dp"
-                        android:layout_height="50dp"
+                        android:layout_width="66dp"
+                        android:layout_height="56dp"
                         android:clickable="true"
                         android:contentDescription="@string/chapter_list"
                         android:focusable="true"
@@ -290,7 +291,7 @@
                             android:layout_weight="1"
                             android:contentDescription="@string/chapter_list"
                             android:src="@drawable/ic_toc"
-                            app:tint="@color/primaryText"
+                            app:tint="@color/black"
                             tools:ignore="NestedWeights" />
 
                         <TextView
@@ -303,7 +304,7 @@
                             android:singleLine="true"
                             android:text="@string/chapter_list"
                             android:textColor="@color/primaryText"
-                            android:textSize="12sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <View
@@ -315,8 +316,8 @@
                     <!--界面按钮-->
                     <LinearLayout
                         android:id="@+id/ll_font"
-                        android:layout_width="60dp"
-                        android:layout_height="50dp"
+                        android:layout_width="66dp"
+                        android:layout_height="56dp"
                         android:clickable="true"
                         android:contentDescription="@string/interface_setting"
                         android:focusable="true"
@@ -330,7 +331,7 @@
                             android:layout_weight="1"
                             android:contentDescription="@string/interface_setting"
                             android:src="@drawable/ic_interface_setting"
-                            app:tint="@color/primaryText"
+                            app:tint="@color/black"
                             tools:ignore="NestedWeights" />
 
                         <TextView
@@ -343,7 +344,7 @@
                             android:singleLine="true"
                             android:text="@string/interface_setting"
                             android:textColor="@color/primaryText"
-                            android:textSize="12sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <View
@@ -355,8 +356,8 @@
                     <!--设置按钮-->
                     <LinearLayout
                         android:id="@+id/ll_setting"
-                        android:layout_width="60dp"
-                        android:layout_height="50dp"
+                        android:layout_width="66dp"
+                        android:layout_height="56dp"
                         android:clickable="true"
                         android:contentDescription="@string/setting"
                         android:focusable="true"
@@ -370,7 +371,7 @@
                             android:layout_weight="1"
                             android:contentDescription="@string/setting"
                             android:src="@drawable/ic_settings"
-                            app:tint="@color/primaryText"
+                            app:tint="@color/black"
                             tools:ignore="NestedWeights" />
 
                         <TextView
@@ -383,7 +384,7 @@
                             android:singleLine="true"
                             android:text="@string/setting"
                             android:textColor="@color/primaryText"
-                            android:textSize="12sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <View

@@ -23,26 +23,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/rb_title_mode1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="3dp"
-                android:text="@string/title_left" />
+                android:text="@string/title_left"
+                android:textColor="@color/primaryText"
+                app:buttonTint="@color/black" />
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/rb_title_mode2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="3dp"
-                android:text="@string/title_center" />
+                android:text="@string/title_center"
+                android:textColor="@color/primaryText"
+                app:buttonTint="@color/black" />
 
-            <RadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/rb_title_mode3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="3dp"
-                android:text="@string/title_hide" />
+                android:text="@string/title_hide"
+                android:textColor="@color/primaryText"
+                app:buttonTint="@color/black" />
         </RadioGroup>
 
         <io.legado.app.ui.widget.DetailSeekBar
@@ -73,6 +79,7 @@
             android:id="@+id/tv_header_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/header"
             android:textSize="18sp" />
 
@@ -180,9 +187,46 @@
 
         </LinearLayout>
 
+        <!-- 页眉分割线：开关与粗细紧跟页眉内容设置 -->
+        <LinearLayout
+            android:id="@+id/ll_header_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            tools:ignore="RtlHardcoded,RtlSymmetry">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="6dp"
+                android:text="@string/ink_header_divider"
+                android:textColor="@color/primaryText" />
+
+            <TextView
+                android:id="@+id/tv_header_line"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textColor="@color/primaryText"
+                tools:text="@string/show" />
+
+        </LinearLayout>
+
+        <io.legado.app.ui.widget.DetailSeekBar
+            android:id="@+id/dsb_header_line_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:max="7"
+            app:title="@string/ink_header_line_size_short" />
+
         <io.legado.app.ui.widget.text.AccentTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/footer"
             android:textSize="18sp" />
 
@@ -290,6 +334,42 @@
 
         </LinearLayout>
 
+        <!-- 页脚分割线：开关与粗细紧跟页脚内容设置 -->
+        <LinearLayout
+            android:id="@+id/ll_footer_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            tools:ignore="RtlHardcoded,RtlSymmetry">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="6dp"
+                android:text="@string/ink_footer_divider"
+                android:textColor="@color/primaryText" />
+
+            <TextView
+                android:id="@+id/tv_footer_line"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textColor="@color/primaryText"
+                tools:text="@string/show" />
+
+        </LinearLayout>
+
+        <io.legado.app.ui.widget.DetailSeekBar
+            android:id="@+id/dsb_footer_line_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            app:max="7"
+            app:title="@string/ink_footer_line_size_short" />
+
         <io.legado.app.ui.widget.text.AccentTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -304,7 +384,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             app:max="18"
-            app:title="@string/header_font_size" />
+            app:title="@string/ink_header_font_size_short" />
 
         <io.legado.app.ui.widget.DetailSeekBar
             android:id="@+id/dsb_footer_font_size"
@@ -313,7 +393,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             app:max="18"
-            app:title="@string/footer_font_size" />
+            app:title="@string/ink_footer_font_size_short" />
 
 
     </LinearLayout>

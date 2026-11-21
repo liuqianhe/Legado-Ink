@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.constant.BookType
+import io.legado.app.ui.main.bookshelf.upBookshelfTitleStyle
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.ItemBookshelfListBinding
@@ -59,6 +60,7 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
         binding.run {
             val item = callBack.getItem(position) as BookGroup
             tvName.text = item.groupName
+            tvName.upBookshelfTitleStyle()
             ivCover.load(item.cover)
         }
     }
@@ -70,7 +72,10 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
             tvLast.text = item.latestChapterTitle
             bundle.keySet().forEach {
                 when (it) {
-                    "name" -> tvName.text = item.name
+                    "name" -> {
+                        tvName.text = item.name
+                        tvName.upBookshelfTitleStyle()
+                    }
                     "author" -> tvAuthor.text = item.author
                     "cover" -> ivCover.load(item.getDisplayCover(), item.name, item.author)
                     "refresh" -> upRefresh(this, item)
@@ -91,6 +96,7 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
             val item = callBack.getItem(position)
             if (item is BookGroup) {
                 tvName.text = item.groupName
+                tvName.upBookshelfTitleStyle()
                 ivCover.load(item.cover)
                 flHasNew.gone()
                 ivAuthor.gone()
@@ -114,6 +120,7 @@ class BooksAdapterList(context: Context, callBack: CallBack) :
             val item = callBack.getItem(position)
             if (item is Book) {
                 tvName.text = item.name
+                tvName.upBookshelfTitleStyle()
                 tvAuthor.text = item.author
                 tvRead.text = item.durChapterTitle
                 tvLast.text = item.latestChapterTitle

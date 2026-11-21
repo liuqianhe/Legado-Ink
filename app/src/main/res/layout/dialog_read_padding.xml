@@ -31,17 +31,6 @@
                     android:text="@string/header"
                     android:textSize="18sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/showLine" />
-
-                <io.legado.app.ui.widget.checkbox.SmoothCheckBox
-                    android:id="@+id/cb_show_top_line"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_margin="6dp" />
-
             </LinearLayout>
 
             <io.legado.app.ui.widget.DetailSeekBar
@@ -125,17 +114,6 @@
                 android:paddingBottom="10dp"
                 android:text="@string/footer"
                 android:textSize="18sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/showLine" />
-
-            <io.legado.app.ui.widget.checkbox.SmoothCheckBox
-                android:id="@+id/cb_show_bottom_line"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_margin="6dp" />
 
         </LinearLayout>
 

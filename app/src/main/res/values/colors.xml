@@ -8,7 +8,7 @@
 
     <color name="divider">#66666666</color>
 
-    <color name="lightBlue_color">#FF777777</color>
+    <color name="lightBlue_color">#ff000000</color>
 
     <color name="error">#000000</color>
     <color name="success">#000000</color>
@@ -27,7 +27,7 @@
     <color name="transparent30">#30000000</color>
     <color name="transparent50">#50000000</color>
 
-    <color name="highlight">#777777</color>
+    <color name="highlight">#ff000000</color>
 
     <color name="btn_bg_press">#63ACACAC</color>
     <color name="btn_bg_press_2">#63858585</color>
@@ -36,11 +36,17 @@
     <color name="tv_btn_normal_black">#737373</color>
     <color name="tv_btn_press_black">#adadad</color>
 
-    <color name="primaryText">#de000000</color>
-    <color name="secondaryText">#8a000000</color>
-    <color name="tv_text_summary">#8A2C2C2C</color>
-    <color name="tv_text_book_detail">#dfdfdf</color>
+    <!-- 墨水屏：正文/次要文字与描边统一纯黑，避免半透明灰 -->
+    <color name="primaryText">#ff000000</color>
+    <color name="secondaryText">#ff000000</color>
+    <color name="tv_text_summary">#ff000000</color>
+    <color name="tv_text_book_detail">#ff000000</color>
     <color name="menu_color_default">#000000</color>
+
+    <!-- 覆盖依赖库默认文字色，菜单/偏好控件不再显示灰色 -->
+    <color name="primary_text_default_material_light">#ff000000</color>
+    <color name="secondary_text_default_material_light">#ff000000</color>
+    <color name="androidx_core_secondary_text_default_material_light">#ff000000</color>
 
 
     <color name="tv_text_button_nor">#efefef</color>
@@ -84,9 +90,9 @@
     <!-- 38% -->
     <color name="ate_text_disabled_light">#61000000</color>
     <!-- 54% -->
-    <color name="ate_secondary_text_light">#8A000000</color>
-    <color name="ate_icon_light">#8A000000</color>
-    <color name="ate_control_normal_light">#8A000000</color>
+    <color name="ate_secondary_text_light">#ff000000</color>
+    <color name="ate_icon_light">#ff000000</color>
+    <color name="ate_control_normal_light">#ff000000</color>
     <!-- 87% -->
     <color name="ate_primary_text_light">#DE000000</color>
     <!--Grey 50, #FAFAFA, Opacity  100%-->

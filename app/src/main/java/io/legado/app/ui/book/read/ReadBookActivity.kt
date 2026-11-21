@@ -193,11 +193,12 @@ class ReadBookActivity : BaseReadBookActivity(),
                 }
             }
             launch {
-                menu.findItem(R.id.menu_get_progress)?.isVisible =
-                    withContext(IO) {
-                        runCatching { AppWebDav.initWebDav() }
-                            .getOrElse { false }
-                    }
+                val webDavOk = withContext(IO) {
+                    runCatching { AppWebDav.initWebDav() }
+                        .getOrElse { false }
+                }
+                menu.findItem(R.id.menu_get_progress)?.isVisible = webDavOk
+                menu.findItem(R.id.menu_overwrite_cloud_progress)?.isVisible = webDavOk
             }
         }
     }
@@ -273,6 +274,11 @@ class ReadBookActivity : BaseReadBookActivity(),
                 viewModel.syncBookProgress(it) { progress ->
                     sureSyncProgress(progress)
                 }
+            }
+            // 把当前本地进度强制推到云端，覆盖已有记录
+            R.id.menu_overwrite_cloud_progress -> ReadBook.book?.let {
+                ReadBook.uploadProgress()
+                toastOnUi(R.string.overwrite_cloud_progress_done)
             }
         }
         return super.onCompatOptionsItemSelected(item)

@@ -259,6 +259,11 @@
     <string name="join_group">Follow:%s</string>
     <string name="copy_complete">Copied successfully</string>
     <string name="arrange_bookshelf">Bookshelf arrangement</string>
+    <string name="bookshelf_title">Bookshelf title style</string>
+    <string name="bookshelf_title_size">Title size</string>
+    <string name="bookshelf_title_size_default">Default</string>
+    <string name="bookshelf_title_weight_normal">Regular</string>
+    <string name="bookshelf_title_weight_bold">Bold</string>
     <string name="clear_bookshelf_s">It will delete all books. Be careful,please.</string>
     <string name="search_book_source">Search book sources</string>
     <string name="search_rss_source">Search subscription sources</string>
@@ -757,6 +762,8 @@
     <string name="rule_subscription">Rule Subscription</string>
     <string name="rule_sub_empty_msg">添加大佬们提供的规则导入地址\n添加后点击可导入规则</string>
     <string name="get_book_progress">Pull the cloud  progress</string>
+    <string name="overwrite_cloud_progress">Overwrite cloud progress</string>
+    <string name="overwrite_cloud_progress_done">Cloud progress overwritten</string>
     <string name="current_progress_exceeds_cloud">The current progress exceeds the cloud progress. Do you want to synchronize?</string>
     <string name="sync_book_progress_t">Synchronous reading progress</string>
     <string name="sync_book_progress_s">Synchronize reading progress when entering / exiting the reading interface</string>
@@ -883,6 +890,13 @@
     <!-- E-ink: header/footer font size, theme/layout/background, underline rules -->
     <string name="header_font_size">Header font size</string>
     <string name="footer_font_size">Footer font size</string>
+    <string name="ink_header_divider">Header divider</string>
+    <string name="ink_footer_divider">Footer divider</string>
+    <string name="ink_divider_size">Divider thickness</string>
+    <string name="ink_header_font_size_short">Header size</string>
+    <string name="ink_footer_font_size_short">Footer size</string>
+    <string name="ink_header_line_size_short">Header line</string>
+    <string name="ink_footer_line_size_short">Footer line</string>
     <string name="ink_theme_layout">Theme &amp; Layout</string>
     <string name="ink_theme">Theme</string>
     <string name="ink_layout">Layout</string>

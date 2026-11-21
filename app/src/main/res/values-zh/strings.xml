@@ -258,6 +258,11 @@
     <string name="join_group">关注:%s</string>
     <string name="copy_complete">已拷贝</string>
     <string name="arrange_bookshelf">整理书架</string>
+    <string name="bookshelf_title">书架书名样式</string>
+    <string name="bookshelf_title_size">书名大小</string>
+    <string name="bookshelf_title_size_default">默认</string>
+    <string name="bookshelf_title_weight_normal">常规</string>
+    <string name="bookshelf_title_weight_bold">加粗</string>
     <string name="clear_bookshelf_s">这将会删除所有书籍，请谨慎操作。</string>
     <string name="search_book_source">搜索书源</string>
     <string name="search_rss_source">搜索订阅源</string>
@@ -757,6 +762,8 @@
     <string name="rule_subscription">规则订阅</string>
     <string name="rule_sub_empty_msg">添加大佬们提供的规则导入地址\n添加后点击可导入规则</string>
     <string name="get_book_progress">拉取云端进度</string>
+    <string name="overwrite_cloud_progress">覆盖云端进度</string>
+    <string name="overwrite_cloud_progress_done">已覆盖云端进度</string>
     <string name="current_progress_exceeds_cloud">当前进度超过云端进度,是否同步?</string>
     <string name="sync_book_progress_t">同步阅读进度</string>
     <string name="sync_book_progress_s">进入退出阅读界面时同步阅读进度</string>
@@ -882,6 +889,13 @@
     <!-- 墨水屏：页眉页脚字号、主题/布局/背景、下划线规则 -->
     <string name="header_font_size">页眉字体大小</string>
     <string name="footer_font_size">页脚字体大小</string>
+    <string name="ink_header_divider">页眉分割线</string>
+    <string name="ink_footer_divider">页脚分割线</string>
+    <string name="ink_divider_size">分割线粗细</string>
+    <string name="ink_header_font_size_short">页眉字号</string>
+    <string name="ink_footer_font_size_short">页脚字号</string>
+    <string name="ink_header_line_size_short">页眉线粗</string>
+    <string name="ink_footer_line_size_short">页脚线粗</string>
     <string name="ink_theme_layout">主题与布局</string>
     <string name="ink_theme">主题</string>
     <string name="ink_layout">布局</string>

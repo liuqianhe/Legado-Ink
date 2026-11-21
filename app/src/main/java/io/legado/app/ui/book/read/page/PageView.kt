@@ -2,11 +2,13 @@ package io.legado.app.ui.book.read.page
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
+import androidx.core.view.updateLayoutParams
 import io.legado.app.R
 import io.legado.app.constant.AppConst.timeFormat
 import io.legado.app.data.entities.Bookmark
@@ -83,6 +85,11 @@ class PageView(context: Context) : FrameLayout(context) {
                 it.footerPaddingRight.dp,
                 it.footerPaddingBottom.dp
             )
+            // 墨水屏：分割线恒为纯黑，粗细由「信息」里的滑杆控制
+            vwTopDivider.setBackgroundColor(Color.BLACK)
+            vwBottomDivider.setBackgroundColor(Color.BLACK)
+            vwTopDivider.updateLayoutParams { height = ReadBookConfig.headerLineSize.dp }
+            vwBottomDivider.updateLayoutParams { height = ReadBookConfig.footerLineSize.dp }
             vwTopDivider.visible(it.showHeaderLine)
             vwBottomDivider.visible(it.showFooterLine)
         }
@@ -168,7 +175,7 @@ class PageView(context: Context) : FrameLayout(context) {
             typeface = ChapterProvider.typeface
             textSize = 12f
         }
-        // 页眉/页脚字号独立可调（对齐海信版），覆盖上面的固定值
+        // 页眉/页脚字号独立可调，覆盖上面的固定值
         applyTipFontSize(binding.llHeader, ReadBookConfig.headerFontSize)
         applyTipFontSize(binding.llFooter, ReadBookConfig.footerFontSize)
     }

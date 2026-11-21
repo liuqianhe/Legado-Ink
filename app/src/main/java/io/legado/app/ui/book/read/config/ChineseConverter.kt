@@ -1,6 +1,7 @@
 package io.legado.app.ui.book.read.config
 
 import android.content.Context
+import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -15,7 +16,9 @@ import io.legado.app.ui.widget.text.StrokeTextView
 class ChineseConverter(context: Context, attrs: AttributeSet?) : StrokeTextView(context, attrs) {
 
     private val spannableString = SpannableString("简/繁")
-    private var enabledSpan: ForegroundColorSpan = ForegroundColorSpan(context.accentColor)
+    private var enabledSpan: ForegroundColorSpan = ForegroundColorSpan(
+        if (AppConfig.isEInkMode) Color.BLACK else context.accentColor
+    )
     private var onChanged: (() -> Unit)? = null
 
     init {

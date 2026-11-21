@@ -55,8 +55,6 @@ class PaddingConfigDialog : BaseDialogFragment(R.layout.dialog_read_padding) {
         dsbFooterPaddingBottom.progress = ReadBookConfig.footerPaddingBottom
         dsbFooterPaddingLeft.progress = ReadBookConfig.footerPaddingLeft
         dsbFooterPaddingRight.progress = ReadBookConfig.footerPaddingRight
-        cbShowTopLine.isChecked = ReadBookConfig.showHeaderLine
-        cbShowBottomLine.isChecked = ReadBookConfig.showFooterLine
     }
 
     private fun initView() = binding.run {
@@ -109,14 +107,6 @@ class PaddingConfigDialog : BaseDialogFragment(R.layout.dialog_read_padding) {
         }
         dsbFooterPaddingRight.onChanged = {
             ReadBookConfig.footerPaddingRight = it
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        cbShowTopLine.onCheckedChangeListener = { _, isChecked ->
-            ReadBookConfig.showHeaderLine = isChecked
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        cbShowBottomLine.onCheckedChangeListener = { _, isChecked ->
-            ReadBookConfig.showFooterLine = isChecked
             postEvent(EventBus.UP_CONFIG, true)
         }
     }
