@@ -939,5 +939,10 @@
     <string name="ink_font_switch">字体</string>
     <string name="ink_quick_text">快捷排版</string>
     <string name="ink_text_weight_value">字重%1$d</string>
+    <string name="ink_right_swipe_font_size">右侧上下滑调节字号</string>
+    <string name="ink_right_swipe_font_size_summary">在阅读页右侧上下滑动即可放大/缩小字号（上滑变大、下滑变小），松手后生效。</string>
+    <string name="ink_left_swipe_font_weight">左侧上下滑调节字重</string>
+    <string name="ink_left_swipe_font_weight_summary">在阅读页左侧上下滑动即可调整字重（0~10 档，上滑变重、下滑变细），松手后生效。</string>
+    <string name="ink_font_size_indicator">字号 %1$d</string>
 
 </resources>

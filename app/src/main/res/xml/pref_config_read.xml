@@ -97,6 +97,22 @@
         app:iconSpaceReserved="false"
         app:isBottomBackground="true" />
 
+    <io.legado.app.ui.widget.prefs.SwitchPreference
+        android:defaultValue="true"
+        android:title="@string/ink_right_swipe_font_size"
+        android:summary="@string/ink_right_swipe_font_size_summary"
+        android:key="ink_right_swipe_font_size"
+        app:iconSpaceReserved="false"
+        app:isBottomBackground="true" />
+
+    <io.legado.app.ui.widget.prefs.SwitchPreference
+        android:defaultValue="true"
+        android:title="@string/ink_left_swipe_font_weight"
+        android:summary="@string/ink_left_swipe_font_weight_summary"
+        android:key="ink_left_swipe_font_weight"
+        app:iconSpaceReserved="false"
+        app:isBottomBackground="true" />
+
     <io.legado.app.ui.widget.prefs.Preference
         android:title="@string/click_regional_config"
         android:key="clickRegionalConfig"

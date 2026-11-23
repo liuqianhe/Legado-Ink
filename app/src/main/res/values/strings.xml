@@ -940,5 +940,10 @@
     <string name="ink_font_switch">Font</string>
     <string name="ink_quick_text">Quick typesetting</string>
     <string name="ink_text_weight_value">Weight %1$d</string>
+    <string name="ink_right_swipe_font_size">Swipe right side to change font size</string>
+    <string name="ink_right_swipe_font_size_summary">Swipe up/down on the right side of the reading page to change font size. Applies when you lift your finger.</string>
+    <string name="ink_left_swipe_font_weight">Swipe left side to change font weight</string>
+    <string name="ink_left_swipe_font_weight_summary">Swipe up/down on the left side of the reading page to change font weight (0–10). Applies when you lift your finger.</string>
+    <string name="ink_font_size_indicator">Font %1$d</string>
 
 </resources>

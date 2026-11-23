@@ -274,10 +274,12 @@ object ReadBookConfig {
             config.titleBottomSpacing = value
         }
 
+    /** 段落首行缩进：横排/竖排完全独立，互不影响（竖排默认无缩进） */
     var paragraphIndent: String
-        get() = config.paragraphIndent
+        get() = if (textVertical) config.vParagraphIndent else config.paragraphIndent
         set(value) {
-            config.paragraphIndent = value
+            if (textVertical) config.vParagraphIndent = value
+            else config.paragraphIndent = value
         }
 
     var paddingBottom: Int
@@ -417,6 +419,7 @@ object ReadBookConfig {
         var vLetterSpacing: Float = 0.1f,
         var vLineSpacingExtra: Int = 12,
         var vParagraphSpacing: Int = 2,
+        var vParagraphIndent: String = "",//竖排段落缩进（独立于横排，默认无缩进）
         var titleMode: Int = 0,//标题居中
         var titleSize: Int = 0,
         var titleTopSpacing: Int = 0,

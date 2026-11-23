@@ -3,7 +3,10 @@ package io.legado.app.ui.book.read.page
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.os.Build
 import android.os.SystemClock
 import android.util.AttributeSet
@@ -14,6 +17,9 @@ import android.view.WindowInsets
 import android.widget.FrameLayout
 import io.legado.app.help.AppConfig
 import io.legado.app.BuildConfig
+import io.legado.app.R
+import io.legado.app.constant.EventBus
+import io.legado.app.constant.PreferKey
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.page.api.DataSource
@@ -23,6 +29,10 @@ import io.legado.app.ui.book.read.page.entities.TextChapter
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
 import io.legado.app.ui.book.read.page.provider.TextPageFactory
 import io.legado.app.utils.activity
+import io.legado.app.utils.dp
+import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.postEvent
+import io.legado.app.utils.sp
 import java.text.BreakIterator
 import java.util.*
 import kotlin.math.abs
@@ -49,6 +59,31 @@ class ReadView(context: Context, attrs: AttributeSet) :
     private var isMove = false
     private var pageTurnStart = 0L
     private var lastTurnDirection = PageDirection.NEXT
+
+    // ===== 侧边上下滑调节排版（右侧字号 / 左侧字重）=====
+    // 候选：按下点落在屏幕左侧或右侧区域；激活：确认是纵向滑动后接管手势。
+    private var swipeCandidate = false
+    private var swipeActive = false
+    private var swipeShowing = false
+    /** true=调字重（左侧），false=调字号（右侧） */
+    private var swipeOnWeight = false
+    private var swipeStartValue = 0
+    private var swipeValue = 0
+    private var swipeLastY = 0f
+    private var swipeAccum = 0f
+    private var swipeHideRunnable: Runnable? = null
+    private val swipeStep = 36f.dp
+    private val swipeEdgeRatio = 0.3f
+    private val swipeMinFontSize = 8
+    private val swipeMaxFontSize = 50
+    private val swipeMinWeight = 0
+    private val swipeMaxWeight = 10
+    private val swipePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val swipeRect = RectF()
+    private val swipeEnabledRight: Boolean
+        get() = context.getPrefBoolean(PreferKey.inkRightSwipeFontSize, true)
+    private val swipeEnabledLeft: Boolean
+        get() = context.getPrefBoolean(PreferKey.inkLeftSwipeFontWeight, true)
 
     //起始点
     var startX: Float = 0f
@@ -133,6 +168,9 @@ class ReadView(context: Context, attrs: AttributeSet) :
         } else {
             super.dispatchDraw(canvas)
         }
+        if (swipeShowing) {
+            drawSwipeIndicator(canvas)
+        }
         if (BuildConfig.DEBUG && pageTurnStart != 0L) {
             Log.d("PagePerf", "draw-duration=${SystemClock.uptimeMillis() - drawStarted}ms")
             pageTurnStart = 0L
@@ -175,8 +213,52 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 isMove = false
                 pageDelegate?.onTouch(event)
                 setStartPoint(event.x, event.y)
+                // 侧边上下滑：右侧调字号、左侧调字重；真正接管要等纵向位移确认
+                val inRightEdge = event.x > width * (1f - swipeEdgeRatio)
+                val inLeftEdge = event.x < width * swipeEdgeRatio
+                swipeCandidate = !pressOnTextSelected && !isTextSelected &&
+                        ((inRightEdge && swipeEnabledRight) || (inLeftEdge && swipeEnabledLeft))
+                if (swipeCandidate) {
+                    swipeOnWeight = inLeftEdge && swipeEnabledLeft
+                    swipeStartValue = if (swipeOnWeight) ReadBookConfig.textBold
+                    else ReadBookConfig.textSize
+                    swipeValue = swipeStartValue
+                    swipeLastY = event.y
+                    swipeAccum = 0f
+                }
             }
             MotionEvent.ACTION_MOVE -> {
+                if (swipeCandidate && !isTextSelected) {
+                    val dx = event.x - startX
+                    val dy = event.y - startY
+                    if (!swipeActive && abs(dy) > slopSquare && abs(dy) > abs(dx) * 1.5f) {
+                        // 确认是纵向滑动：接管手势，取消长按与翻页判定
+                        swipeActive = true
+                        swipeShowing = true
+                        isMove = true
+                        longPressed = true
+                        removeCallbacks(longPressRunnable)
+                        swipeLastY = event.y
+                        swipeAccum = 0f
+                        invalidate()
+                    }
+                    if (swipeActive) {
+                        // 上滑变大、下滑变小
+                        swipeAccum += swipeLastY - event.y
+                        swipeLastY = event.y
+                        val steps = (swipeAccum / swipeStep).toInt()
+                        if (steps != 0) {
+                            swipeAccum -= steps * swipeStep
+                            swipeValue = if (swipeOnWeight) {
+                                (swipeValue + steps).coerceIn(swipeMinWeight, swipeMaxWeight)
+                            } else {
+                                (swipeValue + steps).coerceIn(swipeMinFontSize, swipeMaxFontSize)
+                            }
+                            invalidate()
+                        }
+                        return true
+                    }
+                }
                 if (!isMove) {
                     isMove =
                         abs(startX - event.x) > slopSquare || abs(startY - event.y) > slopSquare
@@ -193,6 +275,13 @@ class ReadView(context: Context, attrs: AttributeSet) :
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 removeCallbacks(longPressRunnable)
+                swipeCandidate = false
+                if (swipeActive) {
+                    swipeActive = false
+                    pressDown = false
+                    applySwipeValue()
+                    return true
+                }
                 if (!pressDown) return true
                 pressDown = false
                 if (!isMove) {
@@ -210,6 +299,79 @@ class ReadView(context: Context, attrs: AttributeSet) :
             }
         }
         return true
+    }
+
+    /**
+     * 手势结束时才真正应用：墨水屏重排一次要几百毫秒，
+     * 拖动过程中只在侧边显示「字号/字重 N」指示，松手后统一重排。
+     */
+    private fun applySwipeValue() {
+        val changed = swipeValue != swipeStartValue
+        swipeShowThenHide()
+        if (!changed) {
+            invalidate()
+            return
+        }
+        if (swipeOnWeight) {
+            ReadBookConfig.textBold = swipeValue
+        } else {
+            ReadBookConfig.textSize = swipeValue
+        }
+        ReadBookConfig.save()
+        invalidate()
+        postEvent(EventBus.UP_CONFIG, true)
+    }
+
+    /** 指示框在松手后再停留一小会儿，让用户看到最终数值 */
+    private fun swipeShowThenHide() {
+        swipeShowing = true
+        swipeHideRunnable?.let { removeCallbacks(it) }
+        val runnable = Runnable {
+            swipeShowing = false
+            // 需要主动重绘一次才能擦掉指示框（墨水屏只更新脏区）
+            invalidate()
+        }
+        swipeHideRunnable = runnable
+        postDelayed(runnable, 1200L)
+    }
+
+    /** 侧边指示框：白底 + 2dp 黑框 + 纯黑字，右边显示字号、左边显示字重 */
+    private fun drawSwipeIndicator(canvas: Canvas) {
+        val text = if (swipeOnWeight) {
+            context.getString(R.string.ink_text_weight_value, swipeValue)
+        } else {
+            context.getString(R.string.ink_font_size_indicator, swipeValue)
+        }
+        val padH = 14f.dp
+        val padV = 9f.dp
+        swipePaint.reset()
+        swipePaint.isAntiAlias = true
+        swipePaint.typeface = Typeface.DEFAULT_BOLD
+        swipePaint.textSize = 20f.sp
+        val textWidth = swipePaint.measureText(text)
+        val boxWidth = textWidth + padH * 2
+        val boxHeight = swipePaint.textSize + padV * 2
+        val cy = height / 2f
+        if (swipeOnWeight) {
+            val left = 12f.dp
+            swipeRect.set(left, cy - boxHeight / 2f, left + boxWidth, cy + boxHeight / 2f)
+        } else {
+            val right = width - 12f.dp
+            swipeRect.set(right - boxWidth, cy - boxHeight / 2f, right, cy + boxHeight / 2f)
+        }
+        // 白底
+        swipePaint.style = Paint.Style.FILL
+        swipePaint.color = Color.WHITE
+        canvas.drawRoundRect(swipeRect, 8f.dp, 8f.dp, swipePaint)
+        // 黑框
+        swipePaint.style = Paint.Style.STROKE
+        swipePaint.strokeWidth = 2f.dp
+        swipePaint.color = Color.BLACK
+        canvas.drawRoundRect(swipeRect, 8f.dp, 8f.dp, swipePaint)
+        // 文字
+        swipePaint.style = Paint.Style.FILL
+        val baseline = cy - (swipePaint.descent() + swipePaint.ascent()) / 2f
+        canvas.drawText(text, swipeRect.left + padH, baseline, swipePaint)
     }
 
     fun upStatusBar() {
@@ -445,6 +607,7 @@ class ReadView(context: Context, attrs: AttributeSet) :
 
     fun onDestroy() {
         ContentTextView.clearPreparedPage()
+        swipeHideRunnable?.let { removeCallbacks(it) }
         pageDelegate?.onDestroy()
         curPage.cancelSelect()
     }

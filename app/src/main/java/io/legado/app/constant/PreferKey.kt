@@ -82,11 +82,13 @@ object PreferKey {
     const val doublePageHorizontal = "doublePageHorizontal"
     const val readUrlOpenInBrowser = "readUrlInBrowser"
 
-    // 墨水屏：竖排 / 翻页刷新
+    // 墨水屏：竖排 / 翻页刷新 / 右侧上下滑调字号
     const val inkTextVertical = "ink_text_vertical"
     const val inkVerticalStartLeft = "ink_vertical_start_left"
     const val inkPageRefreshCount = "ink_page_refresh_count"
     const val inkPageRefreshLast = "ink_page_refresh_last"
+    const val inkRightSwipeFontSize = "ink_right_swipe_font_size"
+    const val inkLeftSwipeFontWeight = "ink_left_swipe_font_weight"
 
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"
