@@ -33,6 +33,7 @@ class SwipeEdgeConfigDialog : BaseDialogFragment(R.layout.dialog_swipe_edge) {
             }
             val current = InkSwipeConfig.edgeWidth
             dsbEdgeWidth.progress = current - InkSwipeConfig.minEdgeWidth
+            dsbEdgeWidth.refreshValue()
             preview.edgeWidthDp = current
             dsbEdgeWidth.onChanged = { progress ->
                 val width = progress + InkSwipeConfig.minEdgeWidth

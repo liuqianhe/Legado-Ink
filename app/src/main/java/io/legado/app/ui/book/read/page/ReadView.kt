@@ -356,7 +356,9 @@ class ReadView(context: Context, attrs: AttributeSet) :
         val textWidth = swipePaint.measureText(text)
         val boxWidth = textWidth + padH * 2
         val boxHeight = swipePaint.textSize + padV * 2
-        val cy = height / 2f
+        // 贴近顶部显示：避开页眉、也避免滑动时被手指挡住
+        val topGap = curPage.headerHeight + 14f.dp
+        val cy = (topGap + boxHeight / 2f).coerceAtMost(height * 0.30f)
         if (swipeOnWeight) {
             val left = 12f.dp
             swipeRect.set(left, cy - boxHeight / 2f, left + boxWidth, cy + boxHeight / 2f)

@@ -951,7 +951,7 @@
     <string name="ink_left_swipe_font_weight">Swipe left side to change font weight</string>
     <string name="ink_left_swipe_font_weight_summary">Swipe up/down on the left side of the reading page to change font weight (0–10). Applies when you lift your finger.</string>
     <string name="ink_swipe_edge_width">Swipe edge width</string>
-    <string name="ink_swipe_edge_width_summary">Default 40dp; only the narrow strips at the screen edges respond</string>
+    <string name="ink_swipe_edge_width_summary">Default 20dp; only the narrow strips at the screen edges respond</string>
     <string name="ink_swipe_edge_title">Swipe edge area</string>
     <string name="ink_swipe_edge_hint">Only the narrow strips at the very left/right edges react to up/down swipes. The middle area stays for page turning and text selection.</string>
     <string name="ink_swipe_edge_legend">Left edge: font weight　Right edge: font size (vertical swipe only)</string>

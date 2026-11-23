@@ -950,7 +950,7 @@
     <string name="ink_left_swipe_font_weight">左侧上下滑调节字重</string>
     <string name="ink_left_swipe_font_weight_summary">在阅读页左侧上下滑动即可调整字重（0~10 档，上滑变重、下滑变细），松手后生效。</string>
     <string name="ink_swipe_edge_width">侧滑感应区宽度</string>
-    <string name="ink_swipe_edge_width_summary">默认 40dp，只在屏幕左右边缘的竖条内生效</string>
+    <string name="ink_swipe_edge_width_summary">默认 20dp，只在屏幕左右边缘的竖条内生效</string>
     <string name="ink_swipe_edge_title">侧滑感应区</string>
     <string name="ink_swipe_edge_hint">只有屏幕最左、最右边缘的竖条内上下滑动才会调字号/字重；越往中间越留给翻页和选字。</string>
     <string name="ink_swipe_edge_legend">左边缘：字重　右边缘：字号（仅纵向滑动生效）</string>
