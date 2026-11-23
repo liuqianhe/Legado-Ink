@@ -44,8 +44,10 @@ class PageView(context: Context) : FrameLayout(context) {
         get() {
             val h1 = if (ReadBookConfig.hideStatusBar) 0 else context.statusBarHeight
             val h2 = if (binding.llHeader.isGone) 0 else binding.llHeader.height
-            // 上限保护：页眉(含状态栏)不得超过屏幕高度的 12%，避免字号过大遮住正文
-            val maxH = (context.resources.displayMetrics.heightPixels * 0.12f).toInt()
+            // 上限保护：页眉(含状态栏)不超过屏幕高度的 30%。
+            // 页眉上下边距现在可调到 48dp，旧的 12% 会把 headerHeight 截短，
+            // 导致选中文字的 Y 坐标偏移；30% 足够覆盖最大字号+最大边距。
+            val maxH = (context.resources.displayMetrics.heightPixels * 0.30f).toInt()
             return (h1 + h2).coerceAtMost(maxH)
         }
 
@@ -178,10 +180,13 @@ class PageView(context: Context) : FrameLayout(context) {
         // 页眉/页脚字号独立可调，覆盖上面的固定值
         applyTipFontSize(binding.llHeader, ReadBookConfig.headerFontSize)
         applyTipFontSize(binding.llFooter, ReadBookConfig.footerFontSize)
+        // 页眉/页脚字重（0~10 档）；电池图标不参与
+        applyTipFontWeight(binding.llHeader, ReadBookConfig.headerFontWeight)
+        applyTipFontWeight(binding.llFooter, ReadBookConfig.footerFontWeight)
     }
 
     /**
-     * 递归给页眉/页脚容器内的文字视图设置字号；电池图标略小一档。
+     * 递归给页眉/页脚容器内的文字视图设置字号；电池图标也跟随缩放，但比文字小一档。
      * 字号已在 ReadBookConfig 里 coerceIn(6,24)，这里再兜底，避免过大遮挡正文。
      */
     private fun applyTipFontSize(container: android.view.ViewGroup, sizeSp: Int) {
@@ -193,6 +198,22 @@ class PageView(context: Context) : FrameLayout(context) {
                 } else {
                     safeSize.toFloat()
                 }
+            }
+            if (v is android.view.ViewGroup) {
+                for (i in 0 until v.childCount) walk(v.getChildAt(i))
+            }
+        }
+        for (i in 0 until container.childCount) walk(container.getChildAt(i))
+    }
+
+    /**
+     * 递归给页眉/页脚文字设置字重（0~10 档，与正文同一套描边算法）。
+     * 电池图标保持原样，不跟着加粗/放大。
+     */
+    private fun applyTipFontWeight(container: android.view.ViewGroup, weight: Int) {
+        fun walk(v: android.view.View) {
+            if (v is BatteryView && !v.isBattery) {
+                v.setInkFontWeight(weight, ChapterProvider.typeface)
             }
             if (v is android.view.ViewGroup) {
                 for (i in 0 until v.childCount) walk(v.getChildAt(i))

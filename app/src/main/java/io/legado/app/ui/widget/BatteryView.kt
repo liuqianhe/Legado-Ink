@@ -54,6 +54,27 @@ class BatteryView @JvmOverloads constructor(
         text = "$battery"
     }
 
+    /**
+     * 墨水屏：页眉/页脚文字字重（0~10 档，与正文字重同一套描边算法）。
+     * 电池图标不参与加粗（字号仍随页眉/页脚字号缩放）。
+     */
+    fun setInkFontWeight(weight: Int, baseTypeface: Typeface?) {
+        if (isBattery) return
+        val w = weight.coerceIn(0, 10)
+        typeface = when {
+            w >= 7 -> Typeface.create(baseTypeface, Typeface.BOLD)
+            else -> Typeface.create(baseTypeface, Typeface.NORMAL)
+        }
+        if (w > 0) {
+            paint.style = Paint.Style.FILL_AND_STROKE
+            paint.strokeWidth = w / 10f * paint.textSize * 0.11f
+        } else {
+            paint.style = Paint.Style.FILL
+            paint.strokeWidth = 0f
+        }
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!isBattery) return

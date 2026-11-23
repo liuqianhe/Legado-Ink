@@ -1,5 +1,6 @@
 package io.legado.app.ui.book.read.config
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -20,12 +21,23 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
 
     override fun onStart() {
         super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        // 项目变多后固定为屏幕高度的 88%，保证底部滑杆可滚动到、不被窗口裁掉
+        val dm = resources.displayMetrics
+        setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            (dm.heightPixels * 0.88f).toInt()
+        )
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         initView()
         initEvent()
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        // 信息面板的滑杆是即时生效的，关闭时统一落盘
+        ReadBookConfig.save()
     }
 
     private fun initView() = binding.run {
@@ -49,6 +61,14 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         dsbFooterFontSize.valueFormat = { (it + ReadBookConfig.minTipFontSize).toString() }
         dsbHeaderFontSize.progress = ReadBookConfig.headerFontSize - ReadBookConfig.minTipFontSize
         dsbFooterFontSize.progress = ReadBookConfig.footerFontSize - ReadBookConfig.minTipFontSize
+
+        // 页眉/页脚字重（0~10）与上下边距（0~48dp）
+        dsbHeaderFontWeight.progress = ReadBookConfig.headerFontWeight
+        dsbFooterFontWeight.progress = ReadBookConfig.footerFontWeight
+        dsbHeaderPaddingTop.progress = ReadBookConfig.headerPaddingTop
+        dsbHeaderPaddingBottom.progress = ReadBookConfig.headerPaddingBottom
+        dsbFooterPaddingTop.progress = ReadBookConfig.footerPaddingTop
+        dsbFooterPaddingBottom.progress = ReadBookConfig.footerPaddingBottom
 
         // 墨水屏：页眉/页脚分割线开关与粗细
         tvHeaderLine.text = dividerText(ReadBookConfig.showHeaderLine)
@@ -88,6 +108,30 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         }
         dsbFooterFontSize.onChanged = {
             ReadBookConfig.footerFontSize = it + ReadBookConfig.minTipFontSize
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbHeaderFontWeight.onChanged = {
+            ReadBookConfig.headerFontWeight = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbFooterFontWeight.onChanged = {
+            ReadBookConfig.footerFontWeight = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbHeaderPaddingTop.onChanged = {
+            ReadBookConfig.headerPaddingTop = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbHeaderPaddingBottom.onChanged = {
+            ReadBookConfig.headerPaddingBottom = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbFooterPaddingTop.onChanged = {
+            ReadBookConfig.footerPaddingTop = it
+            postEvent(EventBus.UP_CONFIG, true)
+        }
+        dsbFooterPaddingBottom.onChanged = {
+            ReadBookConfig.footerPaddingBottom = it
             postEvent(EventBus.UP_CONFIG, true)
         }
         dsbHeaderLineSize.onChanged = {

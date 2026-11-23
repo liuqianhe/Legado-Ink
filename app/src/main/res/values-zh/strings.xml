@@ -897,6 +897,12 @@
     <string name="ink_footer_font_size_short">页脚字号</string>
     <string name="ink_header_line_size_short">页眉线粗</string>
     <string name="ink_footer_line_size_short">页脚线粗</string>
+    <string name="ink_header_font_weight_short">页眉字重</string>
+    <string name="ink_footer_font_weight_short">页脚字重</string>
+    <string name="ink_header_padding_top_short">页眉上距</string>
+    <string name="ink_header_padding_bottom_short">页眉下距</string>
+    <string name="ink_footer_padding_top_short">页脚上距</string>
+    <string name="ink_footer_padding_bottom_short">页脚下距</string>
     <string name="ink_theme_layout">主题与布局</string>
     <string name="ink_theme">主题</string>
     <string name="ink_layout">布局</string>

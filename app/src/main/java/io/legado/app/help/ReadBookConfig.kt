@@ -371,6 +371,10 @@ object ReadBookConfig {
     const val minTipFontSize = 6
     const val maxTipFontSize = 24
 
+    // ===== 页眉/页脚字重（0~10 档，与正文字重同一套算法）=====
+    const val minTipFontWeight = 0
+    const val maxTipFontWeight = 10
+
     var headerFontSize: Int
         get() = config.headerFontSize.coerceIn(minTipFontSize, maxTipFontSize)
         set(value) {
@@ -381,6 +385,18 @@ object ReadBookConfig {
         get() = config.footerFontSize.coerceIn(minTipFontSize, maxTipFontSize)
         set(value) {
             config.footerFontSize = value.coerceIn(minTipFontSize, maxTipFontSize)
+        }
+
+    var headerFontWeight: Int
+        get() = config.headerFontWeight.coerceIn(minTipFontWeight, maxTipFontWeight)
+        set(value) {
+            config.headerFontWeight = value.coerceIn(minTipFontWeight, maxTipFontWeight)
+        }
+
+    var footerFontWeight: Int
+        get() = config.footerFontWeight.coerceIn(minTipFontWeight, maxTipFontWeight)
+        set(value) {
+            config.footerFontWeight = value.coerceIn(minTipFontWeight, maxTipFontWeight)
         }
 
     // ===== 页眉/页脚分割线粗细（dp），1~8dp =====
@@ -441,6 +457,8 @@ object ReadBookConfig {
         var showFooterLine: Boolean = false,
         var headerFontSize: Int = 12,
         var footerFontSize: Int = 12,
+        var headerFontWeight: Int = 0,
+        var footerFontWeight: Int = 0,
         var headerLineSize: Int = 1,
         var footerLineSize: Int = 1,
         var tipHeaderLeft: Int = ReadTipConfig.time,
