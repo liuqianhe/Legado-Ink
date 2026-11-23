@@ -89,6 +89,7 @@ object PreferKey {
     const val inkPageRefreshLast = "ink_page_refresh_last"
     const val inkRightSwipeFontSize = "ink_right_swipe_font_size"
     const val inkLeftSwipeFontWeight = "ink_left_swipe_font_weight"
+    const val inkSwipeEdgeWidth = "ink_swipe_edge_width"
 
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"

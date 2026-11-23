@@ -20,6 +20,7 @@ import io.legado.app.BuildConfig
 import io.legado.app.R
 import io.legado.app.constant.EventBus
 import io.legado.app.constant.PreferKey
+import io.legado.app.help.InkSwipeConfig
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.page.api.DataSource
@@ -73,13 +74,16 @@ class ReadView(context: Context, attrs: AttributeSet) :
     private var swipeAccum = 0f
     private var swipeHideRunnable: Runnable? = null
     private val swipeStep = 36f.dp
-    private val swipeEdgeRatio = 0.3f
     private val swipeMinFontSize = 8
     private val swipeMaxFontSize = 50
     private val swipeMinWeight = 0
     private val swipeMaxWeight = 10
     private val swipePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val swipeRect = RectF()
+    /** 贴边感应区宽度：用户可调，单侧最多 30% 屏宽，左右不可能铺满屏幕 */
+    private val swipeEdgePx: Float
+        get() = InkSwipeConfig.edgeWidth.dp.toFloat()
+            .coerceAtMost(width * InkSwipeConfig.maxWidthRatio)
     private val swipeEnabledRight: Boolean
         get() = context.getPrefBoolean(PreferKey.inkRightSwipeFontSize, true)
     private val swipeEnabledLeft: Boolean
@@ -213,9 +217,10 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 isMove = false
                 pageDelegate?.onTouch(event)
                 setStartPoint(event.x, event.y)
-                // 侧边上下滑：右侧调字号、左侧调字重；真正接管要等纵向位移确认
-                val inRightEdge = event.x > width * (1f - swipeEdgeRatio)
-                val inLeftEdge = event.x < width * swipeEdgeRatio
+                // 侧边上下滑：右侧调字号、左侧调字重；只有贴边竖条内才算候选
+                val edge = swipeEdgePx
+                val inRightEdge = event.x > width - edge
+                val inLeftEdge = event.x < edge
                 swipeCandidate = !pressOnTextSelected && !isTextSelected &&
                         ((inRightEdge && swipeEnabledRight) || (inLeftEdge && swipeEnabledLeft))
                 if (swipeCandidate) {

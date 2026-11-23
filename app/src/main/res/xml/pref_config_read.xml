@@ -114,6 +114,13 @@
         app:isBottomBackground="true" />
 
     <io.legado.app.ui.widget.prefs.Preference
+        android:key="ink_swipe_edge_width"
+        android:title="@string/ink_swipe_edge_width"
+        android:summary="@string/ink_swipe_edge_width_summary"
+        app:iconSpaceReserved="false"
+        app:isBottomBackground="true" />
+
+    <io.legado.app.ui.widget.prefs.Preference
         android:title="@string/click_regional_config"
         android:key="clickRegionalConfig"
         app:iconSpaceReserved="false"

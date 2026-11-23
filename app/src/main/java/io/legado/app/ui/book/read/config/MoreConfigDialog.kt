@@ -12,6 +12,7 @@ import io.legado.app.R
 import io.legado.app.base.BasePreferenceFragment
 import io.legado.app.constant.EventBus
 import io.legado.app.constant.PreferKey
+import io.legado.app.help.InkSwipeConfig
 import io.legado.app.help.ReadBookConfig
 import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.lib.theme.primaryColor
@@ -84,6 +85,13 @@ class MoreConfigDialog : DialogFragment() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             listView.setEdgeEffectColor(primaryColor)
+            refreshSwipeEdgeSummary()
+        }
+
+        /** 侧滑感应区宽度：把当前值显示在设置项摘要里 */
+        fun refreshSwipeEdgeSummary() {
+            findPreference<Preference>("ink_swipe_edge_width")?.summary =
+                getString(R.string.ink_swipe_edge_current, InkSwipeConfig.edgeWidth)
         }
 
         override fun onResume() {
@@ -140,6 +148,9 @@ class MoreConfigDialog : DialogFragment() {
         override fun onPreferenceTreeClick(preference: Preference?): Boolean {
             when (preference?.key) {
                 "customPageKey" -> PageKeyDialog(requireContext()).show()
+                "ink_swipe_edge_width" -> {
+                    SwipeEdgeConfigDialog().show(childFragmentManager, "swipeEdgeConfig")
+                }
                 "clickRegionalConfig" -> {
                     (activity as? ReadBookActivity)?.showClickRegionalConfig()
                 }
