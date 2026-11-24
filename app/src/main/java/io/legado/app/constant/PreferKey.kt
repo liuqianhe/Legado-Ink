@@ -32,6 +32,15 @@ object PreferKey {
     const val bookExportFileName = "bookExportFileName"
     const val bookImportFileName = "bookImportFileName"
     const val importBookPath = "importBookPath"
+    // 网络书籍（WebDAV）：书籍下载后保存位置 + 服务器配置
+    const val defaultBookTreeUri = "defaultBookTreeUri"
+    const val netBookWebDavUrl = "netBookWebDavUrl"
+    const val netBookWebDavAccount = "netBookWebDavAccount"
+    const val netBookWebDavPassword = "netBookWebDavPassword"
+    const val netBookWebDavPath = "netBookWebDavPath"
+    // 网络书籍多服务器配置（JSON 数组）+ 当前选中 id（-1 = 默认备份 WebDAV 地址）
+    const val netBookServers = "netBookServers"
+    const val netBookServerId = "netBookServerId"
     const val recordLog = "recordLog"
     const val processText = "process_text"
     const val cleanCache = "cleanCache"

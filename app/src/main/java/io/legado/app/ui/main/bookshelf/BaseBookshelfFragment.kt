@@ -24,6 +24,7 @@ import io.legado.app.ui.book.arrange.ArrangeBookActivity
 import io.legado.app.ui.book.cache.CacheActivity
 import io.legado.app.ui.book.group.GroupManageDialog
 import io.legado.app.ui.book.local.ImportBookActivity
+import io.legado.app.ui.book.netbook.NetBookActivity
 import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.document.HandleFileContract
 import io.legado.app.ui.main.MainViewModel
@@ -100,6 +101,7 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
             R.id.menu_bookshelf_layout -> configBookshelf()
             R.id.menu_group_manage -> showDialogFragment<GroupManageDialog>()
             R.id.menu_add_local -> startActivity<ImportBookActivity>()
+            R.id.menu_net_book -> startActivity<NetBookActivity>()
             R.id.menu_add_url -> addBookByUrl()
             R.id.menu_arrange_bookshelf -> startActivity<ArrangeBookActivity> {
                 putExtra("groupId", groupId)

@@ -62,6 +62,10 @@
         <activity
             android:name=".ui.book.local.ImportBookActivity"
             android:launchMode="singleTop" />
+        <!-- 网络书籍（WebDAV） -->
+        <activity
+            android:name=".ui.book.netbook.NetBookActivity"
+            android:launchMode="singleTop" />
         <!-- 书籍详情页 -->
         <activity
             android:name=".ui.book.info.BookInfoActivity"

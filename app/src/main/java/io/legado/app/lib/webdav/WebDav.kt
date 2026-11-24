@@ -6,11 +6,13 @@ import io.legado.app.help.http.text
 import okhttp3.*
 import org.intellij.lang.annotations.Language
 import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 import timber.log.Timber
 import java.io.File
 import java.io.InputStream
 import java.net.MalformedURLException
 import java.net.URL
+import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.*
 
@@ -51,6 +53,7 @@ class WebDav(urlStr: String) {
     var parent = ""
     var urlName = ""
     var contentType = ""
+    var isDir: Boolean = false
 
     /**
      * 填充文件信息。实例化WebDAVFile对象时，并没有将远程文件的信息填充到实例中。需要手动填充！
@@ -70,6 +73,57 @@ class WebDav(urlStr: String) {
             return parseDir(body)
         }
         return ArrayList()
+    }
+
+    /**
+     * 列出当前路径下的文件和文件夹（网络书籍浏览用）。
+     * 与 listFiles() 的区别：保留目录项，并用 isDir 标记，displayName 优先取 dav:displayname。
+     */
+    suspend fun listFilesWithDirs(): List<WebDav> {
+        propFindResponse()?.let { body ->
+            return parseDirWithDirs(body)
+        }
+        return ArrayList()
+    }
+
+    private fun parseDirWithDirs(s: String): List<WebDav> {
+        val list = ArrayList<WebDav>()
+        fun localName(e: org.jsoup.nodes.Element) = e.tagName().substringAfter(':').lowercase()
+        fun childText(e: org.jsoup.nodes.Element, name: String): String? {
+            for (child in e.getAllElements()) {
+                if (child === e) continue
+                if (localName(child) == name && child.text().isNotBlank()) return child.text()
+            }
+            return null
+        }
+        // 兼容 d: 前缀、默认 DAV 命名空间、以及不同大小写
+        val document = runCatching { Jsoup.parse(s, "", Parser.xmlParser()) }.getOrElse { Jsoup.parse(s) }
+        val responses = document.getAllElements().filter { localName(it) == "response" }
+        httpUrl?.let { urlStr ->
+            val baseUrl = if (urlStr.endsWith("/")) urlStr else "$urlStr/"
+            for (element in responses) {
+                val href = childText(element, "href") ?: continue
+                val resourceType = childText(element, "resourcetype").orEmpty()
+                val dir = href.endsWith("/") || resourceType.contains("collection", ignoreCase = true)
+                val encodedName = href.removeSuffix("/").substringAfterLast("/")
+                if (encodedName.isEmpty()) continue
+                val name = childText(element, "displayname")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: runCatching { URLDecoder.decode(encodedName, "UTF-8") }.getOrDefault(encodedName)
+                val fullUrl = if (dir) baseUrl + encodedName + "/" else baseUrl + encodedName
+                try {
+                    val webDavFile = WebDav(fullUrl)
+                    webDavFile.displayName = name
+                    webDavFile.contentType = childText(element, "getcontenttype").orEmpty()
+                    webDavFile.urlName = href
+                    webDavFile.isDir = dir
+                    list.add(webDavFile)
+                } catch (e: MalformedURLException) {
+                    Timber.e(e)
+                }
+            }
+        }
+        return list
     }
 
     /**
@@ -224,6 +278,9 @@ class WebDav(urlStr: String) {
         }
         return false
     }
+
+    /** 下载输入流（网络书籍保存到「书籍保存位置」用） */
+    suspend fun downloadInputStream(): InputStream? = getInputStream()
 
     private suspend fun getInputStream(): InputStream? {
         val url = httpUrl

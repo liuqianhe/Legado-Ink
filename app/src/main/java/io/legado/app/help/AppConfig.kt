@@ -178,6 +178,46 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         set(value) {
             appCtx.putPrefBoolean(PreferKey.exportToWebDav, value)
         }
+
+    /**
+     * 网络书籍（WebDAV）下载后保存位置，SAF tree uri。
+     * 与上游的 defaultBookTreeUri 一致，这里单独保留，避免影响备份 WebDAV 配置。
+     */
+    var defaultBookTreeUri: String?
+        get() = appCtx.getPrefString(PreferKey.defaultBookTreeUri)
+        set(value) {
+            if (value.isNullOrBlank()) {
+                appCtx.removePref(PreferKey.defaultBookTreeUri)
+            } else {
+                appCtx.putPrefString(PreferKey.defaultBookTreeUri, value)
+            }
+        }
+
+    var netBookWebDavUrl: String
+        get() = appCtx.getPrefString(PreferKey.netBookWebDavUrl).orEmpty()
+        set(value) = appCtx.putPrefString(PreferKey.netBookWebDavUrl, value)
+
+    var netBookWebDavAccount: String
+        get() = appCtx.getPrefString(PreferKey.netBookWebDavAccount).orEmpty()
+        set(value) = appCtx.putPrefString(PreferKey.netBookWebDavAccount, value)
+
+    var netBookWebDavPassword: String
+        get() = appCtx.getPrefString(PreferKey.netBookWebDavPassword).orEmpty()
+        set(value) = appCtx.putPrefString(PreferKey.netBookWebDavPassword, value)
+
+    var netBookWebDavPath: String
+        get() = appCtx.getPrefString(PreferKey.netBookWebDavPath).orEmpty()
+        set(value) = appCtx.putPrefString(PreferKey.netBookWebDavPath, value)
+
+    /** 当前选中的网络书籍服务器 id，-1 表示使用备份 WebDAV 地址 */
+    var netBookServerId: Long
+        get() = appCtx.getPrefLong(PreferKey.netBookServerId, -1L)
+        set(value) = appCtx.putPrefLong(PreferKey.netBookServerId, value)
+
+    /** 网络书籍服务器列表（JSON），避免改 Room 结构 */
+    var netBookServersJson: String
+        get() = appCtx.getPrefString(PreferKey.netBookServers).orEmpty()
+        set(value) = appCtx.putPrefString(PreferKey.netBookServers, value)
     var exportNoChapterName: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.exportNoChapterName)
         set(value) {

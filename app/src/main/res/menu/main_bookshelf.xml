@@ -23,6 +23,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_net_book"
+        android:icon="@drawable/ic_outline_cloud_24"
+        android:title="@string/net_book"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_add_url"
         android:icon="@drawable/ic_add_online"
         android:title="@string/add_url"
