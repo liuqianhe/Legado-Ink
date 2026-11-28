@@ -53,7 +53,8 @@ class ThemeLayoutDialog : BaseDialogFragment(R.layout.dialog_ink_theme_layout) {
 
     override fun onStart() {
         super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        // 与「信息」「边距」一致：90% 宽 + 按内容高度自适应，垂直居中
+        setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {

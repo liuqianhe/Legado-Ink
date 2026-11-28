@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import io.legado.app.R
 import io.legado.app.base.BaseDialogFragment
 import io.legado.app.constant.EventBus
@@ -21,12 +22,9 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
 
     override fun onStart() {
         super.onStart()
-        // 项目变多后固定为屏幕高度的 88%，保证底部滑杆可滚动到、不被窗口裁掉
-        val dm = resources.displayMetrics
-        setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            (dm.heightPixels * 0.88f).toInt()
-        )
+        // 90% 宽 + 按内容高度自适应，由 Dialog 默认 gravity 垂直居中；
+        // 内容超高时 NestedScrollView 仍可在窗口内滚动
+        setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,13 +60,9 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         dsbHeaderFontSize.progress = ReadBookConfig.headerFontSize - ReadBookConfig.minTipFontSize
         dsbFooterFontSize.progress = ReadBookConfig.footerFontSize - ReadBookConfig.minTipFontSize
 
-        // 页眉/页脚字重（0~10）与上下边距（0~48dp）
+        // 页眉/页脚字重（0~10）；上下边距统一在「边距」面板里调，避免两处重复
         dsbHeaderFontWeight.progress = ReadBookConfig.headerFontWeight
         dsbFooterFontWeight.progress = ReadBookConfig.footerFontWeight
-        dsbHeaderPaddingTop.progress = ReadBookConfig.headerPaddingTop
-        dsbHeaderPaddingBottom.progress = ReadBookConfig.headerPaddingBottom
-        dsbFooterPaddingTop.progress = ReadBookConfig.footerPaddingTop
-        dsbFooterPaddingBottom.progress = ReadBookConfig.footerPaddingBottom
 
         // 墨水屏：页眉/页脚分割线开关与粗细
         tvHeaderLine.text = dividerText(ReadBookConfig.showHeaderLine)
@@ -80,6 +74,19 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         dsbFooterLineSize.progress =
             ReadBookConfig.footerLineSize - ReadBookConfig.minDividerSize
 
+        // 正文标题、页眉/页脚分割线两组默认收起，让页眉/页脚主体设置一屏可见
+        bindSection(llTitleSection, llTitleContent, tvTitleExpand)
+        bindSection(llDividerSection, llDividerContent, tvDividerExpand)
+    }
+
+    private fun bindSection(header: View, content: View, indicator: TextView) {
+        content.visibility = View.GONE
+        indicator.text = "+"
+        header.setOnClickListener {
+            val expand = content.visibility != View.VISIBLE
+            content.visibility = if (expand) View.VISIBLE else View.GONE
+            indicator.text = if (expand) "-" else "+"
+        }
     }
 
     private fun dividerText(show: Boolean): String =
@@ -116,22 +123,6 @@ class TipConfigDialog : BaseDialogFragment(R.layout.dialog_tip_config) {
         }
         dsbFooterFontWeight.onChanged = {
             ReadBookConfig.footerFontWeight = it
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        dsbHeaderPaddingTop.onChanged = {
-            ReadBookConfig.headerPaddingTop = it
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        dsbHeaderPaddingBottom.onChanged = {
-            ReadBookConfig.headerPaddingBottom = it
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        dsbFooterPaddingTop.onChanged = {
-            ReadBookConfig.footerPaddingTop = it
-            postEvent(EventBus.UP_CONFIG, true)
-        }
-        dsbFooterPaddingBottom.onChanged = {
-            ReadBookConfig.footerPaddingBottom = it
             postEvent(EventBus.UP_CONFIG, true)
         }
         dsbHeaderLineSize.onChanged = {

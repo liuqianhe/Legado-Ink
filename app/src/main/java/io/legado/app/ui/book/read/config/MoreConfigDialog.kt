@@ -20,6 +20,7 @@ import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.ReadBookActivity
 import io.legado.app.ui.book.read.page.ReadView
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
+import io.legado.app.utils.applyInkDialogBorder
 import io.legado.app.utils.dp
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.postEvent
@@ -45,6 +46,7 @@ class MoreConfigDialog : DialogFragment() {
             it.attributes = attr
             it.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, 360.dp)
         }
+        view?.post { dialog?.window?.applyInkDialogBorder() }
     }
 
     override fun onCreateView(

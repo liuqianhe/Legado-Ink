@@ -75,6 +75,7 @@ class PageView(context: Context) : FrameLayout(context) {
             tvFooterMiddle.setColor(tipColor)
             tvFooterRight.setColor(tipColor)
             upStatusBar()
+            // 页眉/页脚的上下、左右边距统一由「边距」面板设置（v1.0.19 起「信息」不再重复提供）
             llHeader.setPadding(
                 it.headerPaddingLeft.dp,
                 it.headerPaddingTop.dp,

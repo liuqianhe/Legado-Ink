@@ -89,9 +89,10 @@ class ReadStyleDialog : BaseDialogFragment(R.layout.dialog_read_book_style),
                 postEvent(EventBus.UP_CONFIG, true)
             }
         }
+        // 「信息」「边距」统一作为子面板打开：关掉后回到「界面」面板，
+        // 方便在两个面板之间来回对照，不用重新从工具栏进入。
         tvPadding.setOnClickListener {
-            dismissAllowingStateLoss()
-            callBack?.showPaddingConfig()
+            PaddingConfigDialog().show(childFragmentManager, "paddingConfigDialog")
         }
         tvTip.setOnClickListener {
             TipConfigDialog().show(childFragmentManager, "tipConfigDialog")

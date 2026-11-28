@@ -26,6 +26,8 @@ class PaddingConfigDialog : BaseDialogFragment(R.layout.dialog_read_padding) {
             attr.dimAmount = 0.0f
             it.attributes = attr
         }
+        // 宽度 90%，高度按内容自适应（12 个滑杆刚好占满，不再留一大块空白），
+        // 由 Dialog 默认 gravity 居中显示；内容超高时 NestedScrollView 仍可滚动
         setLayout(0.9f, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 

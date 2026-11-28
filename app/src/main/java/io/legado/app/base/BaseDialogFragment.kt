@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager
 import io.legado.app.R
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.lib.theme.ThemeStore
+import io.legado.app.utils.applyInkDialogBorder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -28,6 +29,12 @@ abstract class BaseDialogFragment(@LayoutRes layoutID: Int) : DialogFragment(lay
         view.setBackgroundColor(ThemeStore.backgroundColor())
         onFragmentCreated(view, savedInstanceState)
         observeLiveBus()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // 子类 onStart 可能重置 window 背景与 decor padding，延后到下一帧统一加描边
+        view?.post { dialog?.window?.applyInkDialogBorder() }
     }
 
     abstract fun onFragmentCreated(view: View, savedInstanceState: Bundle?)

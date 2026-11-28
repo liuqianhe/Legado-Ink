@@ -921,6 +921,7 @@
     <string name="footer_font_size">Footer font size</string>
     <string name="ink_header_divider">Header divider</string>
     <string name="ink_footer_divider">Footer divider</string>
+    <string name="ink_header_footer_divider">Header &amp; Footer Dividers</string>
     <string name="ink_divider_size">Divider thickness</string>
     <string name="ink_header_font_size_short">Header size</string>
     <string name="ink_footer_font_size_short">Footer size</string>
@@ -928,10 +929,6 @@
     <string name="ink_footer_line_size_short">Footer line</string>
     <string name="ink_header_font_weight_short">Header weight</string>
     <string name="ink_footer_font_weight_short">Footer weight</string>
-    <string name="ink_header_padding_top_short">Header top</string>
-    <string name="ink_header_padding_bottom_short">Header bottom</string>
-    <string name="ink_footer_padding_top_short">Footer top</string>
-    <string name="ink_footer_padding_bottom_short">Footer bottom</string>
     <string name="ink_theme_layout">Theme &amp; Layout</string>
     <string name="ink_theme">Theme</string>
     <string name="ink_layout">Layout</string>
